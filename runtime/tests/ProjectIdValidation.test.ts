@@ -157,3 +157,85 @@ describe('projectId path isolation (HIGH-1)', () => {
     expect(fsSync.existsSync(path.resolve(testWorkspace, '..', 'escape'))).toBe(false);
   });
 });
+
+describe('projectId Windows identity hardening (M2.3-A remediation)', () => {
+  const testWorkspace = path.join(__dirname, 'test-workspace-project-id-win');
+  let store: ArtifactStore;
+
+  beforeEach(() => {
+    store = new ArtifactStore(testWorkspace);
+  });
+
+  afterEach(async () => {
+    await fs.rm(testWorkspace, { recursive: true, force: true });
+  });
+
+  test('rejects uppercase ids: NTFS is case-insensitive, Foo and foo would collide', () => {
+    for (const bad of ['Foo', 'MyProject', 'Dental-001', 'PROJECT_123', 'ABC']) {
+      expect(() => validateProjectId(bad)).toThrow(InvalidProjectIdError);
+      expect(() => validateProjectId(bad)).toThrow(/lowercase/i);
+    }
+    // the equivalent lowercase ids remain valid
+    expect(validateProjectId('foo')).toBe('foo');
+    expect(validateProjectId('abc')).toBe('abc');
+    expect(validateProjectId('myproject')).toBe('myproject');
+    expect(validateProjectId('dental-001')).toBe('dental-001');
+    expect(validateProjectId('project_123')).toBe('project_123');
+  });
+
+  test('rejects trailing dots: Windows path resolution strips them, abc. would collide with abc', () => {
+    for (const bad of ['abc.', 'abc...', 'foo.', 'a.b.']) {
+      expect(() => validateProjectId(bad)).toThrow(InvalidProjectIdError);
+      expect(() => validateProjectId(bad)).toThrow(/trailing dot/i);
+    }
+    // interior dots remain valid
+    expect(validateProjectId('abc.def')).toBe('abc.def');
+    expect(validateProjectId('proj.site-01')).toBe('proj.site-01');
+  });
+
+  test('rejects Windows reserved device names, with or without extension', () => {
+    for (const bad of [
+      'CON', 'PRN', 'AUX', 'NUL',
+      'COM1', 'COM2', 'COM9',
+      'LPT1', 'LPT9',
+      'CONIN$', 'CONOUT$',
+      'nul', 'con', 'com1',
+      'NUL.json', 'con.txt', 'com1.md'
+    ]) {
+      expect(() => validateProjectId(bad)).toThrow(InvalidProjectIdError);
+    }
+    // reserved-name rejection explains itself ('nul' passes the lowercase
+    // check and reaches the reserved-name check)
+    expect(() => validateProjectId('nul')).toThrow(/reserved/i);
+  });
+
+  test('rejects ids containing whitespace', () => {
+    for (const bad of ['abc ', ' abc', 'ab c', 'abc\t', 'abc\n']) {
+      expect(() => validateProjectId(bad)).toThrow(InvalidProjectIdError);
+    }
+  });
+
+  test('never silently transforms the submitted identity', () => {
+    // accepted ids are returned EXACTLY as submitted
+    expect(validateProjectId('myproject')).toBe('myproject');
+    expect(validateProjectId('dental-001')).toBe('dental-001');
+    // rejected ids throw — they are never lowercased, trimmed or normalized
+    expect(() => validateProjectId('Foo')).toThrow(InvalidProjectIdError);
+    expect(() => validateProjectId('abc.')).toThrow(InvalidProjectIdError);
+  });
+
+  test('path builders reject every new collision class before any filesystem side effect', () => {
+    const collisionClasses = ['Foo', 'ABC', 'abc.', 'abc...', 'CON', 'NUL.json', 'COM1', 'LPT9'];
+
+    for (const bad of collisionClasses) {
+      expect(() =>
+        store.getArtifactVersionPath(bad, ArtifactType.BUSINESS_RESEARCH, 1)
+      ).toThrow(InvalidProjectIdError);
+    }
+
+    // none of the rejected ids created anything anywhere
+    for (const dirName of ['Foo', 'ABC', 'abc', 'CON', 'COM1']) {
+      expect(fsSync.existsSync(path.join(testWorkspace, dirName))).toBe(false);
+    }
+  });
+});
