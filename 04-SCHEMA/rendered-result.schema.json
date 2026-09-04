@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/rendered-result.schema.json",
+  "title": "Rendered Result",
+  "description": "Phase 5 capture record artifact. Records rendered evidence of a specific implementation version for a specific critique iteration. Bound to exactly one implementation version and never re-used across versions, per artifact-contracts.md section 5.12. Consumed by Independent Critic for visual and functional evaluation. Distinct from Implementation Report (what was built) and Critic Report (how it was judged).",
+  "$comment": "CAPTURE RECORD, NOT EVALUATION. This artifact is the OBJECT of Phase 6 critique, not the critique itself. NO CRITIC METRICS: blueprintFidelity, visualQuality, overallScore, verdict and all Phase 6 evaluation outputs belong in Critic Report (artifact-contracts.md section 5.7). NO IMPLEMENTATION EVIDENCE: declared deviations, assets used, technology choices belong in Implementation Report (section 5.6). NO BLUEPRINT DECISIONS: design language, pattern selections, composition strategy belong in Design Blueprint (section 5.5). Rendered Result is Phase 5's capture of what was actually rendered for Phase 6 to evaluate. VISUAL EVIDENCE FORMAT UNRESOLVED: Section 5.12 does not require screenshot field and no canonical document defines screenshot storage format, asset reference scheme, or embedding strategy (schema-architecture.md section 4.1 concern H). V1 omits screenshot representation; capture context and capture state provide metadata. THREE TIERS REQUIRED: desktop, tablet and mobile per Phase 1 Foundation requirement stated in section 5.12. Schema validates tier names; quality-gates.md section 6.1 enforces tier completeness at validation time. NEVER RE-USED: A Rendered Result is invalid as evidence for any implementation version other than the one it captured (section 5.12 and failure-routing.md section 8).",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "RENDERED_RESULT"
+        }
+      },
+      "required": ["artifactType"]
+    },
+    {
+      "properties": {
+        "consumedArtifactVersions": {
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "properties": {
+              "artifactType": {
+                "const": "IMPLEMENTATION_REPORT"
+              }
+            },
+            "required": ["artifactType"]
+          },
+          "$comment": "IMPLEMENTATION VERSION VIA ENVELOPE: artifact-contracts.md section 5.12 requires 'The exact implementation version rendered'. Section 7 'Implementation version defined' note states: 'The Implementation Report (section 5.6) is the sole artifact whose version constitutes implementation version for a given build. Its artifactVersion is the authoritative implementation version.' Represented here as consumed IMPLEMENTATION_REPORT with its artifactVersion, not as a separate implementationVersion field. Never re-used across implementation versions per section 5.12 line 260 and failure-routing.md section 8."
+        }
+      },
+      "required": ["consumedArtifactVersions"]
+    },
+    {
+      "properties": {
+        "captures": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Array of capture records across required viewport tiers. Section 5.12 requires three compositions per Phase 1: desktop, tablet, mobile. Each capture records tier, timestamp, and capture state.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tier": {
+                "type": "string",
+                "enum": ["desktop", "tablet", "mobile"],
+                "description": "Viewport tier per Phase 1 Foundation's three required compositions, as stated in artifact-contracts.md section 5.12 line 257 'capture context — viewport, per the three compositions required by Phase 1: desktop, tablet, mobile'. Section 8 item 3 records that Phase 6 states no tablet-specific evaluation criteria though tablet is a required capture."
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When this capture was taken, per artifact-contracts.md section 5.12 line 257 'capture timestamp'.",
+                "$comment": "PER-CAPTURE PLACEMENT IS IMPLEMENTATION CHOICE: Section 5.12 lists 'capture timestamp' (singular) in Required information but does not specify artifact-level vs per-capture. Placed at capture level because 'capture timestamp' is listed alongside 'capture context' (which varies: desktop/tablet/mobile) and 'capture state' (which varies: interaction/scroll), suggesting timestamp attaches to the capture record rather than to the artifact. This is semantic inference from the contract's structure, not explicit specification. If captures occur at different times, per-capture timestamps preserve that chronology."
+              },
+              "captureState": {
+                "description": "What interaction or scroll state was captured, per artifact-contracts.md section 5.12 line 257 'capture state — what interaction or scroll state was captured'. REQUIRED CONCEPT, OPEN STRUCTURE: No canonical document defines the internal shape of capture state. May describe scroll position, interaction state, route/page context, or other state metadata as Implementation Engineer determines appropriate for Phase 6 critique.",
+                "$comment": "GAP - artifact-contracts.md section 5.12 requires 'capture state — what interaction or scroll state was captured' but does not define its internal structure. No canonical document specifies state enumeration, scroll position format, route identification format, or interaction sequence notation. Left as unconstrained schema to allow Implementation Engineer to record whatever state metadata Phase 6 needs for evaluation, without inventing a canonical state representation. ROUTE/PAGE CONTEXT: Section 5.12 does not mention routes, pages, or URLs. If route identification is needed, it may be recorded within this open captureState field rather than as a separate top-level field, since no canonical route identification format exists."
+              }
+            },
+            "required": ["tier", "timestamp", "captureState"],
+            "additionalProperties": false,
+            "$comment": "THREE REQUIRED FIELDS ONLY: tier (canonically required concept from section 5.12 line 257, enum enforces valid tier names), timestamp (explicitly required in section 5.12 line 257, per-capture placement is implementation choice), captureState (explicitly required in section 5.12 line 257 though internal structure undefined). NO OPTIONAL FIELDS: viewportWidth omitted (section 5.12 requires 'viewport' as tier identification, not numeric width; no canonical definition of viewportWidth field name/type/units exists). route omitted (section 5.12 does not mention routes/pages/URLs; if route identification needed, can be recorded within captureState open structure). NO SCREENSHOT FIELD: Section 5.12 does not explicitly require screenshot in line 257 'Required information' list, and schema-architecture.md section 4.1 concern H records that no canonical document defines asset identity format or storage scheme. Visual evidence representation unresolved and omitted from V1."
+          },
+          "$comment": "ARRAY STRUCTURE, RUNTIME TIER COMPLETENESS: minItems: 1 ensures at least one capture exists. tier enum validates each capture uses one of desktop/tablet/mobile. Schema does NOT structurally guarantee all three tiers are present (JSON Schema draft-07 limitation for 'array must contain at least one of each enum value'). Section 5.12 line 257 requires all three tiers per Phase 1; quality-gates.md section 6.1 enforces tier completeness at validation time ('A Rendered Result exists for this implementation version, with capture context recorded'). Tier completeness is a validation expectation, enforced by gates, not a shape constraint enforceable in draft-07."
+        }
+      },
+      "required": ["captures"],
+      "additionalProperties": false
+    }
+  ]
+}

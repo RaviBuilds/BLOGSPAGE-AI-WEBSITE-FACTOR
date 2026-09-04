@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/business-research.schema.json",
+  "title": "Business Research",
+  "description": "Payload shape for the Business Research artifact, artifact-contracts.md section 5.1: 'Record what can be found and sourced about the business.' Produced by the Research Agent; consumed by the Research Agent for intelligence structuring and by the Creative Director. Composed with the shared envelope (_common/artifact-envelope.schema.json), which carries artifactId, artifactType, projectId, artifactVersion, versionStatus, producer and the version-provenance fields. This document defines the payload only, per schema-architecture.md section 2. A schema is a shape, never a rule: it does not decide what happens when the shape is violated (schema-architecture.md section 5.1).",
+  "$comment": "Field set is exactly the section 5.1 'Required information' row: business identity and location; services or offerings as stated by the business; contact and operating details; public reputation signals; discovered assets; competitor observations; the source list, with what each source did and did not establish; explicit gaps. No field beyond that row is added. Every category that carries factual claims is modelled as an array of the shared 'factualItem' definition below, which renders artifact-contracts.md section 2's six-column provenance table (fact, value, source, source type, confidence, verification status) exactly, per section 0.8 of the Factory Operating System. Confidence and source type have no defined scale or enumeration in any canonical document; both are left open rather than invented, and each carries a $comment recording the gap.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "BUSINESS_RESEARCH"
+        }
+      },
+      "$comment": "Pins the shared envelope's artifactType to this artifact's own member of the closed twelve-type set (artifact-contracts.md section 5.1; envelope definitions.artifactType). A subset restriction, not a new value: BUSINESS_RESEARCH is already a member of that enum."
+    },
+    {
+      "type": "object",
+      "properties": {
+        "businessIdentityAndLocation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Business identity and location, per artifact-contracts.md section 5.1 'Required information'. Each item is a provenance-carrying factual claim, per section 2."
+        },
+        "servicesOrOfferings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Services or offerings as stated by the business, per section 5.1. 'As stated by the business' is the source's own claim, not a research inference; source and sourceType on each item record that distinction."
+        },
+        "contactAndOperatingDetails": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Contact and operating details, per section 5.1."
+        },
+        "publicReputationSignals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Public reputation signals, per section 5.1. Section 5.1's validation expectation prohibits fabricated reviews or statistics; every item here carries provenance for that reason."
+        },
+        "discoveredAssets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Discovered assets, per section 5.1. Recorded here only as findings of the research itself. Approval status (DISCOVERED / REVIEWED / APPROVED / USED / REJECTED, per artifact-contracts.md section 3 and Factory Operating System section 0.9) belongs to the Asset Inventory artifact, section 5.3, not to Business Research; no status field is carried here to avoid duplicating that separate contract."
+        },
+        "competitorObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Competitor observations, per section 5.1."
+        },
+        "sourceList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/sourceListEntry"
+          },
+          "description": "The source list, with what each source did and did not establish, per section 5.1's own wording. Distinct from the per-item 'source' and 'sourceType' fields inside factualItem: this list is the research's accounting of each source consulted, not a repetition of the per-claim attribution."
+        },
+        "explicitGaps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Explicit gaps, per section 5.1 and artifact-contracts.md section 1 rule 5: 'When required information is unavailable, the artifact records it as unknown. It is never filled by invention.' Each entry names one thing that could not be established. No structure beyond free text is stated anywhere in canon for a gap entry, so none is imposed."
+        }
+      },
+      "required": [
+        "businessIdentityAndLocation",
+        "servicesOrOfferings",
+        "contactAndOperatingDetails",
+        "publicReputationSignals",
+        "discoveredAssets",
+        "competitorObservations",
+        "sourceList",
+        "explicitGaps"
+      ],
+      "$comment_required": "All eight are named by section 5.1's 'Required information' row, and artifact-contracts.md section 1 rule 4 states an artifact is either complete or incomplete and partial artifacts do not pass gates. An empty array is a valid way to record that a category yielded nothing; per rule 5, a category with nothing found is expected to surface through explicitGaps rather than being omitted from the payload entirely.",
+      "$comment_additionalProperties": "additionalProperties is deliberately not set to false. No canonical document states that the Business Research payload is closed to exactly these eight categories, and closing it here would assert a rule the contract does not state."
+    }
+  ],
+  "definitions": {
+    "factualItem": {
+      "type": "object",
+      "properties": {
+        "fact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The claim itself, per artifact-contracts.md section 2 / Factory Operating System section 0.8. Example given there: \"Google rating\"."
+        },
+        "value": {
+          "description": "The stated value, per section 2. Left untyped: section 0.8's own example ('\"value\": \"4.8\"') renders a numeric-looking rating as a JSON string, and no canonical document fixes a type for this column.",
+          "$comment": "SHAPE UNRESOLVED - no canonical document restricts this column to a JSON type. Deliberately left as an unconstrained schema so string, number and boolean values are all representable without inventing a restriction."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where it came from, per section 2. Example given there: \"Google Business Profile\"."
+        },
+        "sourceType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The kind of source, per section 2's 'Source type' column.",
+          "$comment": "GAP - no canonical document enumerates a closed set of source types. Typed as a free string rather than an enum to avoid inventing one."
+        },
+        "confidence": {
+          "description": "Strength of support, per section 2's 'Confidence' column.",
+          "$comment": "GAP - no canonical document defines a confidence scale (no levels, no numeric range, no labels). Left as an unconstrained schema rather than an invented scale."
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "inferred",
+            "unknown"
+          ],
+          "description": "Verified, inferred, or unknown, per artifact-contracts.md section 2's 'Verification status' column, which states exactly this three-member set. The Factory Operating System section 0.8 example spells this column's key as 'status'; renamed to 'verificationStatus' here to disambiguate from the envelope's versionStatus and from asset status (section 3), which are separate vocabularies for separate concerns."
+        }
+      },
+      "required": [
+        "fact",
+        "value",
+        "source",
+        "sourceType",
+        "confidence",
+        "verificationStatus"
+      ],
+      "$comment": "Renders artifact-contracts.md section 2 exactly: 'Per section 0.8, every factual item carried by any artifact records:' followed by these six elements. 'A factual item without provenance is treated as unknown, regardless of plausibility' is a runtime consequence of a missing or incomplete record, per that section, and is not itself a shape; this schema does not encode that consequence, only the six-element record."
+    },
+    "sourceListEntry": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identity of the source, per section 5.1's 'the source list'."
+        },
+        "whatItEstablished": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "What this source did establish, per section 5.1's own wording: 'the source list, with what each source did and did not establish'."
+        },
+        "whatItDidNotEstablish": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "What this source did not establish, per the same section 5.1 wording."
+        }
+      },
+      "required": [
+        "source",
+        "whatItEstablished",
+        "whatItDidNotEstablish"
+      ],
+      "$comment": "The three fields render section 5.1's exact wording ('the source list, with what each source did and did not establish') and add nothing further. Array-of-strings is a rendering choice for 'what it did/did not establish', not a canonical structure; no canonical document specifies one."
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/critic-report.schema.json",
+  "title": "Critic Report",
+  "description": "Phase 6 Independent Critic evaluation of the rendered website against business requirements, brand identity, design intent, and absolute quality standards. Records an explicit verdict, per-finding assessments with root cause and owning phase, accessibility findings, factual-integrity findings, intent test result, and optional scored dimensions. Per artifact-contracts.md section 5.7, quality-gates.md section 7.1, and 06-independent-critic.md.",
+  "$comment": "DIALECT: draft-07 is an implementation choice, not factory canon (same rationale as artifact-envelope.schema.json). UNRESOLVED GAPS PRESERVED: This schema documents but does not resolve the following canonical gaps: (U1) blueprintFidelity aggregation from seven sub-scores undefined; (U6) 'major' accessibility failure threshold undefined; (U7) 'severe' performance problem undefined; (U9) aiGenericRisk LOW/MEDIUM/HIGH assignment criteria undefined; (U10) templateRisk binary-vs-three-level source conflict + assignment criteria undefined; (U14) seven dimension scales undefined, overallScore aggregation undefined; (U15) 'major' mobile failure threshold undefined; (U19) rootCause eight-value list conflicts with ninth value 'pattern choice' in source's own example. NO INVENTED RESOLUTIONS: no thresholds encoded as validation gates, no aggregation formulas, no hard-fail taxonomy, no closed rootCause enum, no invented qualifiers.",
+  "allOf": [
+    {
+      "$ref": "_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "CRITIC_REPORT",
+          "$comment": "Narrows envelope's open artifactType to CRITIC_REPORT per artifact-contracts.md section 5.7. This is one of the twelve contracted artifact types per section 5."
+        },
+        "consumedArtifactVersions": {
+          "type": "array",
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "artifactType": {
+                    "const": "RENDERED_RESULT"
+                  }
+                },
+                "required": ["artifactType"]
+              },
+              "$comment": "RENDERED_RESULT required: artifact-contracts.md section 5.7 'the exact Rendered Result and implementation version evaluated' and section 7 table row 'Rendered Result identity and criticIteration | Critic Report'. The critic evaluates the rendered outcome, not source-code intent."
+            },
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "artifactType": {
+                    "const": "DESIGN_BLUEPRINT"
+                  }
+                },
+                "required": ["artifactType"]
+              },
+              "$comment": "DESIGN_BLUEPRINT required: artifact-contracts.md section 5.7 intent test requires Design Intent Statement from Creative Direction carried into Blueprint by reference, plus Blueprint Fidelity evaluation requires the blueprint. Section 7 table row 'Design Blueprint version | Implementation Report, Critic Report'."
+            }
+          ],
+          "$comment": "Draft-07 multiple contains: using allOf with two separate contains constraints to require BOTH RENDERED_RESULT and DESIGN_BLUEPRINT in the consumed artifacts array. Each contains validates that at least one array item matches; allOf requires both conditions hold."
+        },
+        "registryVersions": {
+          "type": "object",
+          "required": [
+            "parameterRegistry",
+            "designLanguageRegistry",
+            "phaseOwnershipMatrix",
+            "criticMetricsRegistry"
+          ],
+          "$comment": "All four registries required per artifact-contracts.md section 7 table row 'Registry versions — parameter, design language, phase ownership, critic metrics | Creative Direction, Design Blueprint, Implementation Report, Critic Report'. Records exact versions consumed (MAJOR.MINOR.PATCH per versioning.md section 3), never the label CURRENT per section 7 rule 1."
+        }
+      },
+      "required": ["artifactType", "consumedArtifactVersions", "registryVersions"]
+    },
+    {
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "criticIteration": {
+              "type": "integer",
+              "minimum": 1,
+              "$comment": "Required per artifact-contracts.md section 5.7 'criticIteration' and section 7 table row 'Rendered Result identity and criticIteration | Critic Report, Refinement Plan'. Ordinal count of critic evaluation passes for this project. Stamped by Control Plane on CRITIQUING entry per state-machine.md section 6. First pass = 1. The critic records this value; it does not author it. NOT in base envelope (envelope defines no iteration counters), so defined here as required payload field."
+            },
+            "verdict": {
+              "type": "string",
+              "enum": ["SHIP", "REFINE", "REBUILD", "RETURN_TO_PHASE_4"],
+              "$comment": "Required per artifact-contracts.md section 5.7 'an explicit overall verdict'. CRITICAL DISTINCTION: These are RECOMMENDATION values, not state-machine states. The verdict is the critic's recommendation to the Control Plane, which maps each to a state per failure-routing.md section 3.1. SHIP → no transition (proceeds to human Gate 3 Final Approval per quality-gates.md section 8, section 9); REFINE → REFINING state; REBUILD → REFINING as scoped corrective build (NOT unscoped regeneration per failure-routing.md section 1 rule 4); RETURN_TO_PHASE_4 → RETURN_TO_BLUEPRINT state. The critic does not transition the project per artifact-contracts.md section 5.7 note. RETURN_TO_IMPLEMENTATION is NOT a valid recommendation because it is not a state (failure-routing.md section 3.1 note resolves it to REFINING)."
+            },
+            "intentTestResult": {
+              "type": "object",
+              "properties": {
+                "passed": {
+                  "type": "boolean",
+                  "$comment": "Phase 6 section 10.5 requires the intent test be recorded with an explicit result. The source's own report example (section 26 lines 2199-2200) demonstrates this as 'creativeIntent.passed: true' with section 26.1 confirming: 'creativeIntent.passed field is the source's own confirmation that the intent test is a recorded, explicit result.' Boolean type is NOT inferred from the word 'explicit' but drawn from Phase 6's own demonstrated structure."
+                }
+              },
+              "required": ["passed"],
+              "additionalProperties": true,
+              "$comment": "Intent test against Design Intent Statement per artifact-contracts.md section 5.7 'intent test result against the design intent statement', quality-gates.md section 7.1, and Phase 6 section 10.5. Tests whether the rendered site delivers the intended emotional experience per section 10.5 rule. The Design Intent Statement is authored in Creative Direction artifact (artifact-contracts.md section 5.10) and carried into Blueprint by reference. Field name 'creativeIntent' in Phase 6 source example vs 'intentTestResult' in contract — both refer to the same required concept; using contract terminology for artifact schema. additionalProperties:true allows implementation to include narrative evidence or specific intent elements tested, though only 'passed' is contract-required."
+            },
+            "findings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "$comment": "Required per artifact-contracts.md section 5.7 'per-finding description'. Phase 6 section 26 example uses field name 'issue' for the same concept; both describe what is wrong."
+                  },
+                  "severity": {
+                    "type": "string",
+                    "enum": ["P0", "P1", "P2", "P3"],
+                    "$comment": "Required per artifact-contracts.md section 5.7 'severity'. Phase 6 section 20.1 defines four levels exactly: P0 = Critical (blocks shipment), P1 = Major (ship with explicit waiver only), P2 = Important (should fix), P3 = Minor (nice to have). P0 findings trigger DO NOT SHIP verdict per section 21.2 nine hard-fail conditions."
+                  },
+                  "rootCause": {
+                    "type": "string",
+                    "$comment": "Required per artifact-contracts.md section 5.7 'root cause'. Phase 6 section 19.2 lists eight canonical causes. UNRESOLVED CONFLICT (finding U19): section 26.2 records source example uses 'pattern choice' as ninth cause creating unreconciled conflict. NOT enforced as enum."
+                  },
+                  "owningPhase": {
+                    "type": "string",
+                    "$comment": "Required per artifact-contracts.md section 5.7 'owning phase'. The phase that owns correction of this finding per failure-routing.md section 3. NOT closed enum because routing is contextual."
+                  }
+                },
+                "required": ["description", "severity", "rootCause", "owningPhase"],
+                "additionalProperties": true
+              },
+              "$comment": "Required per artifact-contracts.md section 5.7. Array MAY be empty if no findings exist."
+            },
+            "accessibilityFindings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "$comment": "Internal structure intentionally OPEN. No canonical document defines WCAG level, contrast ratio thresholds, touch-target dimensions, screen-reader requirements, keyboard navigation rules, focus visibility standards, or other specific accessibility criteria. Phase 6 section 21.2 item 5 'major accessibility failure' is a hard-fail but 'major' qualifier is undefined (finding U6)."
+              },
+              "$comment": "Required per artifact-contracts.md section 5.7 'accessibility findings'. Accessibility is ABSOLUTE per Phase 6 section 14.1: cannot be traded against creative distinction or other dimensions. Phase 6 section 21.2 item 5 'major accessibility failure' is one of nine hard-fail conditions that block shipment regardless of score. Array MAY be empty if no accessibility findings exist."
+            },
+            "factualIntegrityFindings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "$comment": "Internal structure intentionally OPEN. Each item represents a factual integrity violation but canon does not specify required fields beyond the concept."
+              },
+              "$comment": "Required per artifact-contracts.md section 5.7 'factual-integrity findings'. Covers Phase 6 section 3.3 factual integrity principle: business facts must be real, claims must be true and supportable, testimonials must be real and verifiable. Phase 6 section 21.2 items 1-3 define three hard-fail conditions: wrong business facts, fake claims, fake testimonials. Array MAY be empty if no violations exist."
+            },
+            "businessFit": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 15%. Scale UNDEFINED per registry section 3. Type 'number' matches Phase 6 section 26 example labeled ILLUSTRATIVE—NON-NORMATIVE. Suggested threshold ≥90 NOT ratified. NO minimum/maximum constraints."
+            },
+            "brandSpecificity": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 10%. Scale UNDEFINED. Type 'number' matches Phase 6 section 26 example. NO suggested threshold. NO minimum/maximum constraints."
+            },
+            "visualQuality": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 20% (highest weight). Scale UNDEFINED. Type 'number' matches Phase 6 section 26 example. Suggested threshold ≥90 NOT ratified. NO minimum/maximum constraints."
+            },
+            "ux": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 15%. Canonical identifier per registry section 2.2; Phase 6 prose variant 'UX / Usability'. Scale UNDEFINED. Suggested threshold ≥90 NOT ratified. NO minimum/maximum constraints."
+            },
+            "conversion": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 15%. Scale UNDEFINED. Suggested threshold ≥90 NOT ratified. NO minimum/maximum constraints."
+            },
+            "technical": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 10%. Canonical identifier per registry section 2.2; Phase 6 prose variant 'Technical Quality'. Scale UNDEFINED. NO suggested threshold. NO minimum/maximum constraints."
+            },
+            "creativeDistinctiveness": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2 with weight 15%. Canonical identifier per registry section 2.2; Phase 6 prose variant 'Creative Distinction'. Scale UNDEFINED. Suggested threshold ≥85 NOT ratified. NO minimum/maximum constraints."
+            },
+            "blueprintFidelity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2.1 with explicit range 0-100. This is the ONLY critic metric with a canonically stated numeric range. Evaluates how faithfully implementation matches Design Blueprint across seven dimensions per Phase 6 section 10.1. NO aggregation formula stated for computing overall fidelity from seven sub-scores (finding U1). NO suggested threshold per registry section 2.1. Phase 6 section 26 example shows score 94 labeled ILLUSTRATIVE—NON-NORMATIVE."
+            },
+            "templateRisk": {
+              "type": "string",
+              "enum": ["LOW", "MEDIUM", "HIGH"],
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2.1 with three-level vocabulary. UNRESOLVED SOURCE CONFLICT (finding U10, registry section 5 issue 4): Phase 6 section 17.3 asks binary yes/no question while registry and section 21.3 use three-level scale. Three-level chosen because registry section 2.1 explicitly documents three levels and Phase 6 section 21.2 item 9 hard-fail 'High template risk' requires three-level interpretation. NO criteria for assigning levels. Suggested threshold = LOW NOT ratified."
+            },
+            "aiGenericRisk": {
+              "type": "string",
+              "enum": ["LOW", "MEDIUM", "HIGH"],
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2.1 with three-level vocabulary. Detects convergence on statistical default per Phase 6 section 17.2. NO source conflict. NO criteria for assigning LOW/MEDIUM/HIGH (finding U9). Suggested threshold = LOW NOT ratified. DISTINCT from Phase 3 composition novelty per Phase 6 section 27.6."
+            },
+            "overallScore": {
+              "type": "number",
+              "$comment": "OPTIONAL. Registered in critic-metrics-registry.md section 2.1. Registry section 3 explicitly states: 'UNDEFINED — no aggregation formula stated' and 'overallScore is not computable from this registry.' NO scale defined. NO aggregation method stated (finding U14). Phase 6 section 26 example shows numeric value 93 labeled ILLUSTRATIVE—NON-NORMATIVE. Suggested threshold ≥90 NOT ratified. Phase 6 section 21.4 rule: 'the critic evaluates profile rather than average' — individual dimension patterns matter more than numeric threshold compliance."
+            }
+          },
+          "required": [
+            "criticIteration",
+            "verdict",
+            "intentTestResult",
+            "findings",
+            "accessibilityFindings",
+            "factualIntegrityFindings"
+          ],
+          "additionalProperties": false,
+          "$comment": "Critic Report payload. SIX required fields per artifact-contracts.md section 5.7 and quality-gates.md section 7.1. ELEVEN optional scored dimensions from critic-metrics-registry.md section 2 and section 2.1 with undefined scales, undefined aggregation, non-ratified thresholds. additionalProperties:false at payload level is safe because all contract-required fields and registered metric identifiers enumerated. Finding-level additionalProperties:true remains open for execution context."
+        }
+      },
+      "required": ["payload"]
+    }
+  ]
+}

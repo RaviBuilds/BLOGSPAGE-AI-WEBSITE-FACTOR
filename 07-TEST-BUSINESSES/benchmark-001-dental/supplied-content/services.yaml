@@ -1,0 +1,235 @@
+---
+# SERVICES — MERIDIAN DENTAL STUDIO
+# SYNTHETIC TEST DATA
+---
+
+sourceNote: >
+  All service descriptions are fictional content for SYNTHETIC_TEST benchmark.
+  These represent typical dental services but all business-specific claims,
+  pricing context, and process details are invented for testing purposes.
+
+services:
+  - id: service-01
+    name: "Porcelain Veneers & Smile Makeovers"
+    category: cosmetic
+    businessPriority: FLAGSHIP
+    businessContext: >
+      Primary revenue driver and differentiator. This service represents the 
+      practice's core expertise and attracts the target demographic of 
+      professionals seeking cosmetic transformation. Most consultations begin here.
+    
+    description: >
+      Porcelain veneers remain the gold standard for comprehensive smile transformation. 
+      These ultra-thin ceramic shells are custom-crafted to address multiple cosmetic 
+      concerns simultaneously: discoloration that doesn't respond to whitening, chips 
+      or cracks, gaps between teeth, minor misalignment, and worn or irregularly 
+      shaped teeth.
+      
+      
+      At Meridian, every veneer case begins with digital smile design. We capture 
+      high-resolution images and use specialized software to create a precise preview 
+      of your new smile before any treatment begins. This collaborative process ensures 
+      you see exactly what to expect and have input on the shape, proportion, and shade 
+      of your veneers. Most patients choose between 6 and 10 veneers to achieve balanced, 
+      natural-looking results.
+      
+      
+      The process typically spans two to three appointments. Your first visit involves 
+      consultation and digital planning. The second visit includes gentle preparation 
+      of the tooth surface (usually requiring only minimal reduction) and placement of 
+      comfortable temporary veneers. During this time, our ceramist crafts your custom 
+      veneers in a trusted laboratory. Your final appointment involves precise bonding 
+      of your permanent veneers, followed by bite adjustment and polishing. The result 
+      is a transformed smile that looks naturally yours—never artificial or overdone.
+
+    keyPoints:
+      - Custom digital smile design before treatment begins
+      - Minimal tooth preparation compared to traditional methods
+      - Natural-looking results tailored to facial proportions
+      - Addresses multiple cosmetic concerns simultaneously
+      - Typically 2-3 appointments over 3-4 weeks
+      
+    targetPatients: >
+      Adults seeking comprehensive smile transformation, particularly those with 
+      multiple cosmetic concerns or previous dental work that needs replacement.
+
+  - id: service-02
+    name: "Professional Teeth Whitening"
+    category: cosmetic
+    businessPriority: CORE
+    businessContext: >
+      High-volume service with strong margins. Often serves as entry point for 
+      patients who later pursue more comprehensive cosmetic work. Quick results 
+      drive referrals and social proof.
+    
+    description: >
+      Professional whitening delivers dramatically whiter teeth in a fraction of the 
+      time required by over-the-counter products, with results that last significantly 
+      longer. We offer both in-office and take-home whitening systems, and many patients 
+      choose a combination approach for optimal results.
+      
+      
+      Our in-office treatment uses professional-strength whitening gel activated by a 
+      specialized LED light. The process takes about 90 minutes and can lighten teeth 
+      by several shades in a single visit. You'll leave with visibly whiter teeth the 
+      same day. For patients with sensitive teeth, we adjust the protocol and provide 
+      desensitizing treatments before and after whitening.
+      
+      
+      Take-home whitening uses custom-fitted trays made from impressions of your teeth. 
+      You'll receive professional-grade whitening gel and detailed instructions for use. 
+      Most patients wear the trays for 30-60 minutes daily over two weeks, with results 
+      becoming visible within a few days. This method offers excellent control and can 
+      be repeated periodically to maintain your bright smile.
+
+    keyPoints:
+      - In-office treatment dramatic results in 90 minutes
+      - Custom take-home trays for gradual controlled whitening
+      - Professional-strength gel not available over-the-counter
+      - Desensitizing options for sensitive teeth
+      - Results last 1-3 years with proper maintenance
+      
+    targetPatients: >
+      Patients with yellowing or stained teeth from aging, coffee, tea, wine, or 
+      tobacco use. Ideal for special events or as smile maintenance.
+
+  - id: service-03
+    name: "Dental Implants & Restoration"
+    category: restorative
+    businessPriority: CORE
+    businessContext: >
+      High-value service requiring specialized expertise. Dr. Chen leads implant 
+      cases. Combines surgical and restorative phases. Strong patient satisfaction 
+      and long-term outcomes drive referrals.
+    
+    description: >
+      Dental implants are the most advanced solution for replacing missing teeth. 
+      Unlike bridges or dentures, implants replace both the root and crown of the tooth, 
+      preserving jawbone health and providing a permanent, natural-feeling restoration. 
+      Dr. Chen has placed over 400 implants since joining Meridian and brings both 
+      technical precision and a gentle approach to every case.
+      
+      
+      The implant process begins with comprehensive 3D imaging to assess bone density 
+      and plan precise implant placement. During a minor surgical procedure, a biocompatible 
+      titanium post is placed in the jawbone. Over the next 3-6 months, the implant 
+      integrates with your bone through osseointegration. Once integration is complete, 
+      we attach a custom abutment and crown that matches your natural teeth in shape, 
+      color, and function.
+      
+      
+      We also handle complex cases including multiple implants, implant-supported 
+      bridges, and full-arch restoration. For patients with insufficient bone density, 
+      we can coordinate bone grafting procedures to ensure successful implant placement.
+
+    keyPoints:
+      - Permanent tooth replacement that preserves jawbone health
+      - 3D imaging and surgical guides for precise placement
+      - Single implants or full-arch restoration available
+      - Over 400 successful implants placed by Dr. Chen
+      - Natural appearance and function typically lasting decades
+      
+    targetPatients: >
+      Adults with one or more missing teeth, or those facing extraction who want 
+      the most permanent replacement option.
+
+  - id: service-04
+    name: "Comprehensive General Dentistry"
+    category: general
+    businessPriority: CORE
+    businessContext: >
+      Foundation service supporting cosmetic work. Maintains patient relationships 
+      and provides diagnostic foundation for identifying cosmetic opportunities. 
+      Family-focused positioning supports secondary market segment.
+    
+    description: >
+      Preventive care is the foundation of lifelong dental health. Our comprehensive 
+      general dentistry services include routine exams, professional cleanings, digital 
+      X-rays, oral cancer screening, and personalized hygiene coaching. We take time 
+      during every visit to assess not just your current dental health, but your risk 
+      factors and long-term goals.
+      
+      
+      When treatment is needed, we provide a full range of restorative services: 
+      tooth-colored fillings that blend invisibly with your natural teeth, ceramic 
+      crowns and bridges that restore function and appearance, and root canal therapy 
+      performed with modern techniques that prioritize your comfort. We also offer 
+      custom night guards for patients who grind their teeth.
+      
+      
+      For families, we see patients of all ages starting around age three. Our team 
+      understands that early positive experiences shape lifelong attitudes toward 
+      dental care, so we focus on making every visit comfortable, educational, and 
+      even enjoyable for younger patients.
+
+    keyPoints:
+      - Comprehensive exams with digital X-rays and oral cancer screening
+      - Tooth-colored fillings and ceramic restorations
+      - Root canal therapy with modern comfort techniques
+      - Custom night guards and sports guards
+      - Family-friendly care for ages 3 and up
+      
+    targetPatients: >
+      Patients of all ages seeking preventive care, restorative treatment, or a 
+      long-term dental home for their family.
+
+  - id: service-05
+    name: "Sedation Dentistry"
+    category: specialty
+    businessPriority: SECONDARY
+    businessContext: >
+      Differentiator that removes barriers for anxious patients. Dr. Rodriguez 
+      certification enables complex cases in single appointments. Supports both 
+      cosmetic and restorative service lines.
+    
+    description: >
+      Dental anxiety affects millions of adults and can prevent people from seeking 
+      necessary care. Our sedation dentistry options help anxious patients receive 
+      treatment comfortably, and allow us to complete complex procedures in fewer 
+      appointments. Dr. Rodriguez is certified in oral conscious sedation and has 
+      helped hundreds of patients overcome their dental fears.
+      
+      
+      We offer three levels of sedation based on your anxiety level and the complexity 
+      of your procedure. Nitrous oxide provides mild relaxation while keeping you fully 
+      awake and responsive. Oral conscious sedation uses medication taken before your 
+      appointment to produce deeper relaxation. For extensive treatment, IV sedation 
+      administered by a board-certified anesthesiologist provides the deepest level 
+      of sedation while still allowing you to breathe independently.
+
+    keyPoints:
+      - Three sedation levels available
+      - Dr. Rodriguez certified in sedation dentistry
+      - Complete complex treatments in fewer appointments
+      - Safe for patients with dental anxiety or phobia
+      
+    targetPatients: >
+      Patients with dental anxiety, fear, or phobia; those with strong gag reflex.
+
+  - id: service-06
+    name: "Emergency Dental Care"
+    category: general
+    businessPriority: SECONDARY
+    businessContext: >
+      Availability differentiator supporting community relationships and patient 
+      loyalty. Often converts to long-term patients. Same-day appointments when possible.
+    
+    description: >
+      Dental emergencies happen without warning. We reserve same-day appointment slots 
+      for urgent cases and provide guidance by phone to help you manage pain until you 
+      can be seen.
+      
+      
+      CONTROLLED IMPERFECTION: This description is intentionally shorter than others
+      to test content adaptation and layout flexibility (IMPERFECTION_01).
+
+    keyPoints:
+      - Same-day appointments for urgent issues
+      - Phone triage and pain management guidance
+      - Available at both clinic locations
+      
+    targetPatients: >
+      Existing and new patients experiencing dental emergencies.
+
+---
+# END SERVICES

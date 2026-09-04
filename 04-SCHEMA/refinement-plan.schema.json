@@ -1,0 +1,213 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/refinement-plan.schema.json",
+  "title": "Refinement Plan",
+  "description": "Phase 6 Refinement Plan artifact produced by Independent Critic. Specifies which findings are to be corrected, by which role, at which phase, and which findings are deliberately not actioned. Per artifact-contracts.md section 5.8 and 06-independent-critic.md sections 23-24.",
+  "$comment": "CONTRACT COMPLIANCE: artifact-contracts.md section 5.8 requires: finding reference, assigned owning phase, assigned executing role, whether refinement or regression is required, what correction is required per finding, ordering where findings interact, findings deliberately not actioned with reason, criticIteration. All eight requirements represented. OWNING PHASE VS EXECUTING ROLE: Section 5.8 distinguishes these explicitly. REGRESSION VS REFINEMENT: Section 5.8 requires whether refinement or regression is required. requiresRegression field records this classification. NO PAYLOAD WRAPPER: Follows established pattern. FINDING LINKAGE: No canonical finding ID format exists; findingReference uses characteristic-based discrimination via criticReportVersion + findingCharacteristics. NO REGISTRY VERSIONS: artifact-contracts.md section 7 table does not list Refinement Plan.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "REFINEMENT_PLAN"
+        }
+      },
+      "required": [
+        "artifactType"
+      ]
+    },
+    {
+      "properties": {
+        "consumedArtifactVersions": {
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "properties": {
+              "artifactType": {
+                "const": "CRITIC_REPORT"
+              }
+            },
+            "required": [
+              "artifactType"
+            ]
+          },
+          "$comment": "CRITIC_REPORT REQUIRED: section 5.8 requires Refinement Plan to address findings from a specific Critic Report."
+        }
+      },
+      "required": [
+        "consumedArtifactVersions"
+      ]
+    },
+    {
+      "properties": {
+        "refinementActions": {
+          "type": "array",
+          "description": "Findings to be corrected, ordered by severity per Phase 6 section 23.1.",
+          "$comment": "REQUIRED COLLECTION, NO CANONICAL MINIMUM per section 5.8.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "findingReference": {
+                "type": "object",
+                "description": "Reference to the specific finding from the consumed Critic Report.",
+                "$comment": "CHARACTERISTIC-BASED REFERENCE: No canonical finding ID format exists.",
+                "properties": {
+                  "criticReportVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Which Critic Report version this finding comes from."
+                  },
+                  "findingCharacteristics": {
+                    "type": "object",
+                    "description": "Characteristics that discriminate this finding from others.",
+                    "$comment": "OPEN STRUCTURE: No canonical shape exists."
+                  }
+                },
+                "required": [
+                  "criticReportVersion",
+                  "findingCharacteristics"
+                ],
+                "additionalProperties": false
+              },
+              "owningPhase": {
+                "type": "string",
+                "enum": [
+                  "PHASE_1",
+                  "PHASE_2",
+                  "PHASE_3",
+                  "PHASE_4",
+                  "PHASE_5",
+                  "PHASE_6"
+                ],
+                "description": "Which phase owns this finding root cause, per section 5.8 assigned owning phase.",
+                "$comment": "OWNING PHASE VS EXECUTING ROLE: Section 5.8 distinguishes these explicitly."
+              },
+              "executingRole": {
+                "type": "string",
+                "enum": [
+                  "Research Agent",
+                  "Creative Director",
+                  "Composition Designer",
+                  "Implementation Engineer",
+                  "Refinement Engineer",
+                  "Independent Critic"
+                ],
+                "description": "Which role executes this correction, per section 5.8 assigned executing role.",
+                "$comment": "SIX AGENT ROLES: Section 5.8 distinguishes executing role from owning phase."
+              },
+              "requiresRegression": {
+                "type": "boolean",
+                "description": "Whether this finding requires regression (true) or refinement in place (false), per section 5.8.",
+                "$comment": "CONTRACT BASIS: Section 5.8 requires whether refinement or regression is required."
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2",
+                  "P3"
+                ],
+                "description": "Severity level for plan ordering per Phase 6 section 23.1.",
+                "$comment": "COPIED FOR OPERATIONAL ORDERING."
+              },
+              "affectedSection": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Which section this action targets, per Phase 6 section 23.3.",
+                "$comment": "REQUIRED per section 23.3."
+              },
+              "affectedFile": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Which file this action targets, per Phase 6 section 23.3.",
+                "$comment": "OPTIONAL per section 23.3."
+              },
+              "requiredChange": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What correction is required, per section 5.8 and Phase 6 section 23.3.",
+                "$comment": "REQUIRED CONCEPT."
+              },
+              "doNotChange": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What must remain unchanged, per Phase 6 section 23.3.",
+                "$comment": "OPTIONAL per section 23.3."
+              },
+              "expectedOutcome": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Observable improvement after correction, per Phase 6 section 23.3.",
+                "$comment": "REQUIRED per section 23.3."
+              }
+            },
+            "required": [
+              "findingReference",
+              "owningPhase",
+              "executingRole",
+              "requiresRegression",
+              "severity",
+              "affectedSection",
+              "requiredChange",
+              "expectedOutcome"
+            ],
+            "additionalProperties": false,
+            "$comment": "EIGHT REQUIRED FIELDS per contract. TWO OPTIONAL: affectedFile, doNotChange."
+          }
+        },
+        "findingsNotActioned": {
+          "type": "array",
+          "description": "Findings deliberately not actioned, per section 5.8.",
+          "$comment": "REQUIRED COLLECTION, NO CANONICAL MINIMUM per section 5.8.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "findingReference": {
+                "type": "object",
+                "description": "Reference to the finding deliberately not actioned.",
+                "$comment": "SAME REFERENCE STRUCTURE as refinementActions.",
+                "properties": {
+                  "criticReportVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Which Critic Report version."
+                  },
+                  "findingCharacteristics": {
+                    "type": "object",
+                    "description": "Discriminating characteristics."
+                  }
+                },
+                "required": [
+                  "criticReportVersion",
+                  "findingCharacteristics"
+                ],
+                "additionalProperties": false
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Why not actioned, per section 5.8.",
+                "$comment": "CONTRACT EXPLICIT: with reason."
+              }
+            },
+            "required": [
+              "findingReference",
+              "reason"
+            ],
+            "additionalProperties": false,
+            "$comment": "TWO REQUIRED FIELDS ONLY per contract."
+          }
+        }
+      },
+      "required": [
+        "refinementActions",
+        "findingsNotActioned"
+      ],
+      "additionalProperties": false,
+      "$comment": "ROOT ARTIFACT-SPECIFIC PROPERTIES: Both collections required per section 5.8. NO registryVersions, NO verdict, NO workflow state fields."
+    }
+  ]
+}

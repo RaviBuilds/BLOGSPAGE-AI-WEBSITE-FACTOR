@@ -1,0 +1,191 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/_common/artifact-envelope.schema.json",
+  "title": "Artifact Envelope",
+  "description": "Shared machine envelope for factory artifacts. Carries only the cross-artifact metadata and provenance already fixed by the Control Plane and Registries, per schema-architecture.md section 2 (envelope vs payload) and section 3 (envelope concerns already fixed by contract). Defines no artifact payload, no parameter, no scale, no threshold and no gating rule. A schema is a shape, never a rule: it may make a violation detectable, it does not decide the consequence (schema-architecture.md section 5.1).",
+  "$comment": "DIALECT IS AN IMPLEMENTATION DECISION, NOT FACTORY CANON. No canonical document selects a serialisation format or schema dialect: schema-architecture.md section 9 item 6 records 'No serialisation format is chosen. This document neither selects nor implies one', and 04-ai-creative-direction.md section 36.2 records 'No JSON Schema, no YAML schema, no validation artifact.' draft-07 is chosen here as the most conservative widely-supported dialect. This choice is not derived from any contract.",
+  "type": "object",
+  "properties": {
+    "artifactId": {
+      "$ref": "#/definitions/identifier",
+      "description": "Identity of this artifact instance. PRESENCE is presupposed by versioning.md section 6.2 rule 1 and artifact-contracts.md section 7; FORMAT is undecided. schema-architecture.md section 4.1 (concern H, recorded Open) states that no canonical document specifies an identifier format for a project, an artifact, or an artifact version. No pattern, format or length is asserted here."
+    },
+    "artifactType": {
+      "$ref": "#/definitions/artifactType",
+      "description": "Which of the twelve contracted artifact types this is. The set is closed by artifact-contracts.md section 5 (schema-architecture.md section 3.1). No thirteenth type is added by a schema and none is introduced by a project run."
+    },
+    "projectId": {
+      "$ref": "#/definitions/identifier",
+      "description": "Identity of the owning project. All project artifacts live inside that project's workspace and no artifact is shared across projects (artifact-contracts.md section 1 rule 7; source-of-truth.md section 4 rule 4). FORMAT is undecided per concern H."
+    },
+    "artifactVersion": {
+      "$ref": "#/definitions/projectArtifactVersion",
+      "description": "Version of this project artifact. Project artifacts use simple incrementing iteration numbers rather than semantic versions, because they are instances rather than contracts (versioning.md section 4, as recorded in schema-architecture.md section 3.2). Deliberately NOT required: the Composition Plan has no independent version, per artifact-contracts.md section 5.11."
+    },
+    "versionStatus": {
+      "$ref": "#/definitions/versionStatus",
+      "description": "Artifact VERSION status, per versioning.md section 6.2. These are artifact version statuses and NOT project states: section 6.2 states they appear nowhere in state-machine.md and never determine which state a project is in. Deliberately NOT required: the Composition Plan has no independent CURRENT status, per artifact-contracts.md section 5.11."
+    },
+    "owningPhase": {
+      "$ref": "#/definitions/owningPhase",
+      "description": "The phase holding conceptual authority over the content, and the routing target for a defect in it. Represented SEPARATELY from producer and executingRole by design, per schema-architecture.md section 3.9 (concern N): ownership of a correction follows the owning phase, not the state and not the executing role (agent-roles.md section 4 invariant 7; phase-ownership-matrix.md section 6 decision 19). Optional here because artifact-contracts.md states an explicit 'Owning phase' contract row for only two of the twelve artifacts, sections 5.10 and 5.11."
+    },
+    "producer": {
+      "$ref": "#/definitions/producer",
+      "description": "The role or authority that produced this artifact. Every artifact declares one producing role, per artifact-contracts.md section 1 rule 1. Distinct from owningPhase and executingRole. Two producers are not agents: the Final Report is produced by the Control Plane (section 5.9) and the Rendered Result by the Implementation Engineer via the build (section 5.12), per schema-architecture.md section 3.5."
+    },
+    "executingRole": {
+      "$ref": "#/definitions/factoryRole",
+      "description": "The role performing work in the current state, per workflow.md section 2 and state-machine.md. Carried separately because the executing role can differ from the owning phase: a Phase 5-owned defect actioned inside REFINING is corrected by the Implementation Engineer, not the Refinement Engineer (agent-roles.md sections 3.4 and 3.6)."
+    },
+    "criticIteration": {
+      "$ref": "#/definitions/criticIteration",
+      "description": "Ordinal of the critique cycle, stamped by the Control Plane on entry to CRITIQUING (state-machine.md section 6). The Independent Critic records it and does not set or reset it (agent-roles.md section 3.5). Placed by artifact-contracts.md on the Critic Report (5.7), the Refinement Plan (5.8) and the Rendered Result (5.12); the Final Report records it per cycle in refinement history (5.9). It is INDEPENDENT of the CURRENT/SUPERSEDED/HISTORICAL model and is NOT a version status: it is the ordinal of the cycle, not the status of the artifact, and neither is derived from the other (schema-architecture.md section 3.7)."
+    },
+    "factoryVersion": {
+      "$ref": "#/definitions/factoryGlobalVersion",
+      "description": "The factory version this artifact was built against, defined as the aggregate of the units in versioning.md section 3. A delivered project records the factory versions it was built against (section 1 rule 2). Placed specifically on the Final Report by versioning.md section 5 and artifact-contracts.md section 5.9."
+    },
+    "registryVersions": {
+      "$ref": "#/definitions/registryVersions",
+      "description": "The EXACT registry versions actually consumed, never the label CURRENT. Resolution uses CURRENT; recording uses the exact version consumed (artifact-contracts.md section 7). Recording CURRENT alone is insufficient because CURRENT moves and an artifact must remain interpretable after the versions it consumed have been superseded. Recording confers no authority over the consumed document (section 7 rule 2) and no version number is invented (section 7 rule 3)."
+    },
+    "consumedArtifactVersions": {
+      "$ref": "#/definitions/consumedArtifactVersions",
+      "description": "The EXACT upstream artifact versions actually consumed, per artifact-contracts.md section 6 invariant 9 and the section 7 'Applies to' table. Same resolution-versus-recording separation as registryVersions."
+    }
+  },
+  "required": [
+    "artifactType",
+    "projectId",
+    "producer"
+  ],
+  "$comment_required": "Only concerns true of ALL twelve artifacts are required. artifactVersion, versionStatus and owningPhase are deliberately NOT required: artifact-contracts.md section 5.11 gives the Composition Plan no independent version, no independent CURRENT status and no independent lifecycle, and an envelope applied uniformly to all twelve would give it fields the contract says it does not have (schema-architecture.md section 4.2, concern I, recorded Open). Per-artifact tightening belongs to the per-artifact schemas, which do not exist yet.",
+  "$comment_additionalProperties": "additionalProperties is deliberately NOT set to false. Concern I in schema-architecture.md section 4.2 leaves undecided whether the envelope is one shared structure that artifact schemas draw on or the same concerns restated inside each of the twelve schemas. Closing the object here would prejudge that open question by breaking allOf composition with a payload. This is a schema-design decision, not factory canon.",
+  "$comment_provenance": "Two provenance kinds exist and only one belongs here. The VERSION provenance chain (concern F, schema-architecture.md section 3.6) is carried by factoryVersion, registryVersions and consumedArtifactVersions below. The PER-FACTUAL-ITEM provenance of artifact-contracts.md section 2 (fact, value, source, source type, confidence, verification status) is payload-level, attaches to individual claims rather than to the artifact, and is NOT modelled here. Its verification-status vocabulary additionally cannot be enumerated at this version: schema-architecture.md section 6 records that 'uncertain' maps to no canonical truth class and that a schema MUST NOT enumerate the truth classification at all.",
+  "definitions": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "$comment": "SHAPE UNRESOLVED — concern H, schema-architecture.md section 4.1, recorded Open. No canonical document states an identifier format for a project, an artifact, or an artifact version. Only non-emptiness is asserted, which follows from the field being required to refer to something at all. No pattern, no format keyword, no maxLength, no UUID or slug convention is imposed, because imposing one would be invention. Constraints any eventual format must satisfy, per section 4.1: distinguish one project from another (source-of-truth.md section 4 rule 4); distinguish one artifact type from another; distinguish a version from a superseded version of the same artifact (versioning.md section 6.2 rule 3); and remain resolvable after the delivered record becomes immutable (versioning.md section 6)."
+    },
+    "artifactType": {
+      "type": "string",
+      "enum": [
+        "BUSINESS_RESEARCH",
+        "BUSINESS_INTELLIGENCE",
+        "ASSET_INVENTORY",
+        "BRAND_PROFILE",
+        "DESIGN_BLUEPRINT",
+        "IMPLEMENTATION_REPORT",
+        "CRITIC_REPORT",
+        "REFINEMENT_PLAN",
+        "FINAL_REPORT",
+        "CREATIVE_DIRECTION",
+        "RENDERED_RESULT"
+      ],
+      "$comment": "Closed set of exactly eleven peer artifacts, in the order artifact-contracts.md section 5 defines them: 5.1 Business Research, 5.2 Business Intelligence, 5.3 Asset Inventory, 5.4 Brand Profile, 5.5 Design Blueprint, 5.6 Implementation Report, 5.7 Critic Report, 5.8 Refinement Plan, 5.9 Final Report, 5.10 Creative Direction, 5.12 Rendered Result. BUSINESS_INTELLIGENCE is the artifact also called the Business Intelligence Package (section 5.2); one type, two names, no separate member. COMPOSITION_PLAN (section 5.11) is a COMPONENT of the Design Blueprint record rather than a peer artifact per section 5.11: it has no independent version or status and is not a member of this enum. Section 4's Artifact Register lists eleven rows because there are eleven peer artifacts. The token spelling is a naming convention chosen here, not canon: no canonical document states machine tokens for these titles."
+    },
+    "projectArtifactVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "$comment": "Project artifacts use simple incrementing iteration numbers rather than semantic versions, per versioning.md section 4 as recorded in schema-architecture.md section 3.2. Integer with a floor of 1 because an iteration count starts at a first iteration; no maximum is stated anywhere and none is imposed. Distinct in KIND from factoryGlobalVersion: factory-global assets use MAJOR.MINOR.PATCH per versioning.md section 2, project artifacts do not, and the two must not be typed as one."
+    },
+    "versionStatus": {
+      "type": "string",
+      "enum": [
+        "CURRENT",
+        "SUPERSEDED",
+        "HISTORICAL"
+      ],
+      "$comment": "The complete set of ARTIFACT VERSION STATUSES from versioning.md section 6.2, with that section's meanings: CURRENT is the single version in force and is authoritative; SUPERSEDED is a previously current version, not authoritative; HISTORICAL is retained as part of a delivered record and authoritative only as the record of that delivery. NOT STATE-MACHINE STATES: section 6.2 states plainly that these are artifact version statuses, not project states, that they appear nowhere in state-machine.md, and that they never determine which state a project is in. The same three apply unchanged to factory-global registry versions per section 6.2, with no parallel vocabulary introduced. Cardinality rules — exactly one CURRENT per project and artifact type (section 6.2 rule 1), exactly one CURRENT per registry document factory-wide (rule 1 of the registry rules) — are cross-instance invariants that a single-document schema cannot express; they are recorded here and enforced elsewhere."
+    },
+    "owningPhase": {
+      "type": "string",
+      "enum": [
+        "PHASE_1",
+        "PHASE_2",
+        "PHASE_3",
+        "PHASE_4",
+        "PHASE_5",
+        "PHASE_6"
+      ],
+      "$comment": "The six phases registered by phase-ownership-matrix.md section 3: Phase 1 Foundation, Phase 2 Visual Design Languages, Phase 3 Composition & Pattern System, Phase 4 creative direction and design blueprint, Phase 5 Implementation, Phase 6 critique and refinement. Phase 0 is the Factory Operating System and is the Control Plane's own layer rather than an owning phase for a defect, so it is not a member here. BR (Business Research) appears in that matrix's table as an input boundary only, explicitly not a phase, and is likewise not a member. NOT a role and NOT a state: this is conceptual authority and the routing target for a defect (failure-routing.md section 3), per concern N in schema-architecture.md section 3.9."
+    },
+    "criticIteration": {
+      "type": "integer",
+      "minimum": 1,
+      "$comment": "Provenance ordinal, fully specified by state-machine.md section 6: owner Control Plane, stamped by the Control Plane with no agent authoring it, first value 1 on first entry into CRITIQUING, increment +1 on each entry into CRITIQUING for the same strategic design. Integer with floor 1 is read directly from that table's 'First value' row. NO MAXIMUM is imposed because section 6 states 'None encoded' — 06-independent-critic.md section 29 places 'escalate after three failed cycles' in the critic's MAY column, a permission and not a cap, and the Control Plane does not terminate a project on this counter. NOT A VERSION STATUS and NOT A WORKFLOW STATE: section 6's 'Type' row says so explicitly, and it is independent of the CURRENT/SUPERSEDED/HISTORICAL model. The reset-to-1 rule after a material upstream strategic regression is FACTORY-DEFINED V1, not source-derived (section 6; phase-ownership-matrix.md section 6 decision 4a), and is runtime behaviour that this schema records but does not enforce."
+    },
+    "producer": {
+      "type": "string",
+      "enum": [
+        "RESEARCH_AGENT",
+        "CREATIVE_DIRECTOR",
+        "COMPOSITION_DESIGNER",
+        "IMPLEMENTATION_ENGINEER",
+        "INDEPENDENT_CRITIC",
+        "REFINEMENT_ENGINEER",
+        "CONTROL_PLANE"
+      ],
+      "$comment": "The six roles of agent-roles.md section 2 ('Six roles exist. This is the complete set.') PLUS CONTROL_PLANE, which is required because not every producer is an agent: artifact-contracts.md section 5.9 gives the Final Report's producing role as the Control Plane. schema-architecture.md section 3.5 warns that a schema assuming every artifact has a human-or-agent author would be wrong. The Rendered Result's producer is IMPLEMENTATION_ENGINEER 'via the build' (section 5.12); the build is the mechanism, not a separate producer identity, and no BUILD member is invented here. Human approval is likewise not production: section 5.3's Asset Inventory is produced by the Research Agent and approved by a human, and approval authority lives in human-approval.md rather than in this field."
+    },
+    "factoryRole": {
+      "type": "string",
+      "enum": [
+        "RESEARCH_AGENT",
+        "CREATIVE_DIRECTOR",
+        "COMPOSITION_DESIGNER",
+        "IMPLEMENTATION_ENGINEER",
+        "INDEPENDENT_CRITIC",
+        "REFINEMENT_ENGINEER"
+      ],
+      "$comment": "Exactly the six roles registered by agent-roles.md section 2, which states that set is complete. Deliberately excludes CONTROL_PLANE: the Control Plane stamps and produces but is not one of the six logical roles. Used for executingRole, which artifact-contracts.md section 5.8 requires the Refinement Plan to assign per finding."
+    },
+    "factoryGlobalVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "$comment": "Factory-global assets are versioned MAJOR.MINOR.PATCH per versioning.md section 2, with section 3 giving what each component means per asset. The three-part dotted pattern is an IMPLEMENTATION RENDERING of that stated scheme, not a separately canonical format; section 2 says versions are 'expressed conceptually as MAJOR.MINOR.PATCH' and states no lexical grammar. Pre-release and build-metadata suffixes are not permitted because no canonical document uses them. Distinct in KIND from projectArtifactVersion, which is a plain incrementing integer; versioning.md section 7 invariant 1 keeps the two scopes independent."
+    },
+    "registryVersions": {
+      "type": "object",
+      "properties": {
+        "parameterRegistry": {
+          "$ref": "#/definitions/factoryGlobalVersion"
+        },
+        "designLanguageRegistry": {
+          "$ref": "#/definitions/factoryGlobalVersion"
+        },
+        "phaseOwnershipMatrix": {
+          "$ref": "#/definitions/factoryGlobalVersion"
+        },
+        "criticMetricsRegistry": {
+          "$ref": "#/definitions/factoryGlobalVersion"
+        }
+      },
+      "$comment": "Exactly the four registries named in artifact-contracts.md section 7's 'Applies to' table — parameter, design language, phase ownership, critic metrics — which are the registry artifacts of versioning.md section 3.1. Recorded on Creative Direction, Design Blueprint, Implementation Report and Critic Report by that table; not on the other artifacts, which is why no key is required here. Each value is the EXACT version consumed, never the label CURRENT (section 7). Which registries a given artifact type must record is a per-artifact-schema constraint and is not asserted at this shared level, per concern I."
+    },
+    "consumedArtifactVersions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "artifactType": {
+            "$ref": "#/definitions/artifactType"
+          },
+          "artifactId": {
+            "$ref": "#/definitions/identifier"
+          },
+          "artifactVersion": {
+            "$ref": "#/definitions/projectArtifactVersion"
+          }
+        },
+        "required": [
+          "artifactType",
+          "artifactVersion"
+        ]
+      },
+      "$comment": "The exact upstream artifact versions actually consumed, per artifact-contracts.md section 6 invariant 9 and the section 7 'Applies to' table, which names business intelligence, brand profile and asset inventory (recorded on Creative Direction and Design Blueprint), the Creative Direction version (on Design Blueprint), the Design Blueprint version (on Implementation Report and Critic Report), and the Rendered Result identity (on Critic Report and Refinement Plan). Modelled as a list of typed version records rather than fixed per-artifact keys, because which inputs each artifact records varies by artifact and concern I leaves the shared-versus-repeated question open. 'Implementation version', which section 5.12 requires the Rendered Result to record and which the section 7 table also lists, is the exact artifactVersion of the IMPLEMENTATION_REPORT artifact consumed by the Rendered Result or Critic Report, per artifact-contracts.md section 7's 'Implementation version defined' note. It is represented in this list as a record with artifactType IMPLEMENTATION_REPORT and that artifactVersion, not as a separate identifier or version scheme. artifactId is optional within each record for the same reason artifactId is optional at the top level: concern H leaves identifier format undecided, so a consumer may only be able to name the type and version it consumed."
+    }
+  }
+}

@@ -1,0 +1,116 @@
+---
+# LOCATIONS — MERIDIAN DENTAL STUDIO
+# SYNTHETIC TEST DATA
+---
+
+sourceNote: >
+  All location addresses, phone numbers, and operational details are FICTIONAL
+  for SYNTHETIC_TEST benchmark. These do not represent real clinic locations.
+
+locations:
+  - id: location-01
+    name: "Harbor District Clinic"
+    isPrimary: true
+    
+    address:
+      street: "2847 Harborview Avenue"
+      suite: "Suite 200"
+      city: "Harbor District"
+      state: "FS"
+      zip: "98401"
+      country: "Fictional"
+      note: "Completely fictional address"
+    
+    contact:
+      phone: "(555) 201-3847"
+      phoneNote: "Fictional phone number"
+      email: "harbor@meridiandental.test"
+      emailNote: "Test domain - not a real email"
+    
+    hours:
+      monday: "9:00 AM - 6:00 PM"
+      tuesday: "9:00 AM - 6:00 PM"
+      wednesday: "9:00 AM - 6:00 PM"
+      thursday: "9:00 AM - 6:00 PM"
+      friday: "9:00 AM - 5:00 PM"
+      saturday: "By appointment only"
+      sunday: "Closed"
+      
+    hoursNote: >
+      CONTROLLED IMPERFECTION: In a separate source record (not shown in this file),
+      hours are listed as "Monday-Friday 9:00 AM - 5:00 PM" which conflicts with the
+      detailed schedule above showing some days until 6:00 PM. This tests conflict
+      detection and verification discipline (IMPERFECTION_04).
+    
+    parking:
+      type: "Validated parking"
+      details: "Free validated parking in building garage. Entrance on Harbor Street."
+    
+    accessibility:
+      - Elevator access to second floor
+      - ADA-compliant facilities
+      - Wheelchair accessible entrance
+    
+    practitioners:
+      - "Dr. Sarah Mitchell"
+      - "Dr. James Chen"
+    
+    established: 2016
+    
+    description: >
+      Our original location in the Harbor District features three modern treatment rooms 
+      with water views, digital X-ray systems, and same-day crown technology. This clinic 
+      specializes in cosmetic dentistry and complex restorative cases.
+
+  - id: location-02
+    name: "Riverside Crossing Clinic"
+    isPrimary: false
+    
+    address:
+      street: "156 Riverside Parkway"
+      suite: "Unit 4B"
+      city: "Riverside Crossing"
+      state: "FS"
+      zip: "98402"
+      country: "Fictional"
+      note: "Completely fictional address"
+    
+    contact:
+      phone: "(555) 208-7629"
+      phoneNote: "Fictional phone number"
+      email: "riverside@meridiandental.test"
+      emailNote: "Test domain - not a real email"
+    
+    hours:
+      monday: "10:00 AM - 7:00 PM"
+      tuesday: "10:00 AM - 7:00 PM"
+      wednesday: "10:00 AM - 7:00 PM"
+      thursday: "10:00 AM - 7:00 PM"
+      friday: "9:00 AM - 4:00 PM"
+      saturday: "By appointment only"
+      sunday: "Closed"
+    
+    parking:
+      type: "Surface lot"
+      details: "Free parking lot adjacent to building. Ample spaces available."
+    
+    accessibility:
+      - Ground-floor location
+      - ADA-compliant facilities
+      - Wheelchair accessible entrance
+      - Designated accessible parking spaces
+    
+    practitioners:
+      - "Dr. Emily Rodriguez"
+      - "Dr. James Chen (select days)"
+    
+    established: 2020
+    
+    description: >
+      Our Riverside Crossing location opened in 2020 to serve working professionals with 
+      extended evening hours. This clinic offers comprehensive general dentistry, sedation 
+      dentistry, and preventive care in a convenient ground-floor location with ample 
+      parking.
+
+---
+# END LOCATIONS

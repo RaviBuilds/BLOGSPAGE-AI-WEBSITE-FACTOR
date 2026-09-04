@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+projects/
+.temp-*
+*.tmp-*
+coverage-final.txt
+repro-run*.txt
+validate-out.txt

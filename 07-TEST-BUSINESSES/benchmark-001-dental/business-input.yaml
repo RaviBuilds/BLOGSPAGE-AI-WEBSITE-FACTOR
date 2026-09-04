@@ -1,0 +1,286 @@
+---
+# BENCHMARK BUSINESS #001 — BUSINESS INPUT
+# SYNTHETIC TEST FIXTURE FOR FACTORY VALIDATION
+---
+
+sourceDeclaration:
+  type: SYNTHETIC_TEST
+  purpose: PILOT_VALIDATION
+  syntheticElements:
+    - All business facts (business does not exist)
+    - All team member identities and credentials
+    - All testimonials
+    - All statistics (patient counts, years, satisfaction rates)
+    - All awards and recognitions
+    - Business history and founding story
+    - All location addresses and contact information
+  realElements:
+    - Stock photography (licensed from Unsplash/Pexels, attributed in asset manifest)
+    - Design patterns (from factory canon)
+    - Industry-standard dental procedures (general knowledge)
+  markingStrategy: EXPLICIT
+  researchability: NONE
+  note: >
+    This is a complete supplied source package. No external research required.
+    Research Agent processes supplied content only and marks all facts with
+    sourceType: SYNTHETIC_TEST and verificationStatus: synthetic_test.
+
+# =============================================================================
+# BUSINESS IDENTITY
+# =============================================================================
+
+businessIdentity:
+  name: Meridian Dental Studio
+  industry: Dental Services
+  businessType: Cosmetic + General Dentistry
+  established: 2016
+  establishedNote: Fictional establishment date for synthetic test business
+  tagline: "Where artistry meets advanced dentistry"
+  
+  primaryLocation:
+    name: Harbor District Clinic
+    city: Harbor District
+    state: Fictional State
+    note: Completely fictional location
+    
+  secondaryLocation:
+    name: Riverside Crossing Clinic
+    city: Riverside Crossing
+    state: Fictional State
+    note: Completely fictional location
+
+  marketPositioning: >
+    Premium/upscale local dental practice serving professionals and families
+    seeking high-quality cosmetic and general dentistry. This is a BUSINESS 
+    CHARACTERISTIC describing the market segment, not a creative prescription.
+    The factory decides how to express this visually.
+
+# =============================================================================
+# BUSINESS DESCRIPTION & CONTEXT
+# =============================================================================
+
+businessDescription: >
+  Meridian Dental Studio was founded in 2016 by Dr. Sarah Mitchell with a vision 
+  to provide exceptional dental care that combines clinical expertise with genuine 
+  patient comfort. What started as a single-chair practice in the Harbor District 
+  has grown into a two-location studio serving over 3,000 patients annually.
+  
+  
+  The practice specializes in transformative cosmetic dentistry while maintaining 
+  a foundation of comprehensive general care. Dr. Mitchell assembled a team of 
+  specialists who share her philosophy: that exceptional dentistry requires both 
+  technical precision and an understanding of each patient's unique goals and 
+  concerns. Every treatment plan is collaborative, personalized, and designed to 
+  deliver results that look natural and feel right.
+  
+  
+  Meridian's approach combines advanced technology with unhurried appointments. 
+  The practice invested early in digital smile design, intraoral scanning, and 
+  same-day crown technology—not just for efficiency, but to give patients clarity 
+  and confidence in their treatment journey. Most cosmetic consultations include 
+  a digital preview of expected results, and every patient receives a dedicated 
+  treatment coordinator who guides them from first visit through final result.
+
+businessHistory: >
+  Dr. Mitchell opened Meridian after spending six years in a large corporate 
+  dental group, where she felt the pressure to rush appointments and upsell 
+  treatments. She wanted to build something different: a practice where clinical 
+  decisions were never compromised by production targets, and where patients 
+  felt genuinely cared for rather than processed.
+  
+  
+  The Harbor District location opened with just Dr. Mitchell and one assistant. 
+  Within two years, patient referrals required adding Dr. James Chen, a 
+  restorative specialist, and expanding to a three-operatory space. By 2020, 
+  demand for evening appointments led to opening the Riverside Crossing location, 
+  designed specifically for working professionals. Dr. Emily Rodriguez joined in 
+  2022, bringing expertise in sedation dentistry and full-mouth rehabilitation.
+
+# =============================================================================
+# BUSINESS GOALS & CONVERSION
+# =============================================================================
+
+primaryGoal:
+  type: CONSULTATION_BOOKINGS
+  focus: Cosmetic procedures (veneers, smile makeovers, whitening)
+  conversionJourney: HIGH_CONSIDERATION
+  note: >
+    Visitors need substantial trust-building before booking. Multiple decision 
+    factors: practitioner expertise, technology, proven results, patient comfort, 
+    location convenience, and cost transparency. Creative Direction must decide 
+    how to build trust before asking for conversion.
+
+secondaryGoals:
+  - type: NEW_PATIENT_REGISTRATION
+    focus: General dentistry and family care
+  - type: EMERGENCY_APPOINTMENTS
+    focus: Urgent dental care for existing and new patients
+
+conversionContext: >
+  Cosmetic dentistry is a high-investment, trust-dependent decision. Patients 
+  typically research for weeks or months before committing. They evaluate 
+  before/after results, read detailed practitioner credentials, and often 
+  consult multiple practices. The website must demonstrate expertise, showcase 
+  outcomes, explain processes clearly, and make the consultation step feel 
+  low-risk and welcoming.
+
+# =============================================================================
+# TARGET AUDIENCE & BUSINESS CONTEXT
+# =============================================================================
+
+targetAudience:
+  primarySegment:
+    demographics: Professionals age 30-55
+    lifestage: Established careers, disposable income for elective care
+    motivations:
+      - Confidence in professional and social settings
+      - Correcting long-standing cosmetic concerns
+      - Maintaining youthful appearance
+      - Addressing functional issues (worn teeth, bite problems)
+    concerns:
+      - Treatment pain and recovery time
+      - Natural-looking results (avoiding "fake" appearance)
+      - Cost and payment options
+      - Time commitment (busy schedules)
+    decisionFactors:
+      - Practitioner credentials and specialization
+      - Before/after evidence of similar cases
+      - Technology and techniques used
+      - Patient testimonials emphasizing outcomes and experience
+      - Consultation process (what to expect)
+      
+  secondarySegment:
+    demographics: Families seeking comprehensive general care
+    motivations: Preventive care, family-friendly environment, insurance acceptance
+    
+
+# =============================================================================
+# BUSINESS CONSTRAINTS
+# =============================================================================
+
+constraints:
+  - type: BRAND_CONTINUITY
+    requirement: Existing logo must be retained
+    rationale: Established brand recognition in local market
+    
+  - type: LOCATION_PARITY
+    requirement: Both locations must be represented with equal prominence
+    rationale: Operational requirement—both clinics are active and serve distinct neighborhoods
+    
+  - type: COMPLIANCE
+    requirement: Must include accessibility statement and privacy policy references
+    rationale: WCAG 2.1 AA compliance and healthcare privacy regulations
+    
+  - type: REGULATORY
+    requirement: Cannot make guaranteed treatment outcome claims
+    rationale: Dental advertising regulations prohibit outcome guarantees
+    
+  - type: FUNCTIONAL
+    requirement: Online consultation booking must be supported
+    rationale: Primary conversion mechanism
+
+# =============================================================================
+# CONTENT COMPLETENESS DECLARATION
+# =============================================================================
+
+completeness:
+  content: RICH
+  assets: MODERATE_HIGH
+  researchability: NONE
+  
+contentSummary:
+  servicesCount: 6
+  teamCount: 3
+  testimonialsCount: 5
+  locationsCount: 2
+  trustSignalsCount: 4
+  totalWordCount: ~3000
+
+# =============================================================================
+# SUPPLIED CONTENT REFERENCES
+# =============================================================================
+
+suppliedContent:
+  services: ./supplied-content/services.yaml
+  team: ./supplied-content/team.yaml
+  testimonials: ./supplied-content/testimonials.yaml
+  locations: ./supplied-content/locations.yaml
+  trustSignals: ./supplied-content/trust-signals.yaml
+
+suppliedBrand:
+  brandContext: ./supplied-brand/brand-context.yaml
+  logo: ./supplied-brand/logo.svg
+
+
+
+# =============================================================================
+# CONTROLLED IMPERFECTIONS (TEST CONDITIONS)
+# =============================================================================
+
+controlledImperfections:
+  - id: IMPERFECTION_01
+    type: CONTENT_VARIATION
+    description: Emergency care service description noticeably shorter than others
+    location: supplied-content/services.yaml (service 6)
+    severity: MINOR
+    testPurpose: Content adaptation flexibility
+    
+  - id: IMPERFECTION_02
+    type: CONTENT_VARIATION
+    description: Dr. Rodriguez biography shorter than lead practitioners
+    location: supplied-content/team.yaml (team member 3)
+    severity: MINOR
+    testPurpose: Layout flexibility for varied content lengths
+    
+  - id: IMPERFECTION_03
+    type: ATTRIBUTION_INCOMPLETE
+    description: One testimonial uses incomplete attribution (first name + initial only)
+    location: supplied-content/testimonials.yaml (testimonial 4)
+    severity: MINOR
+    testPurpose: Provenance handling discipline
+    
+  - id: IMPERFECTION_04
+    type: CONFLICTING_INFORMATION
+    description: Harbor District hours listed differently in two source records
+    location: supplied-content/locations.yaml (location 1, see hoursNote)
+    severity: MINOR
+    testPurpose: Conflict detection and verification discipline
+    
+  - id: IMPERFECTION_05
+    type: ASSET_QUALITY_VARIATION
+    description: One asset marked "adequate but not ideal quality"
+    location: supplied-assets/asset-manifest.yaml (asset team-03)
+    severity: MINOR
+    testPurpose: Asset suitability judgment
+    
+  - id: IMPERFECTION_06
+    type: CREDENTIAL_UNDERSPECIFIED
+    description: One practitioner credential lacks specific program detail
+    location: supplied-content/team.yaml (Dr. Chen, credential 4)
+    severity: MINOR
+    testPurpose: Verification discipline and trust signal assessment
+
+# =============================================================================
+# METADATA
+# =============================================================================
+
+metadata:
+  benchmarkId: BENCHMARK_001
+  version: 1.0.0
+  created: 2026-09-02
+  factoryVersion: 0.1.0
+  purpose: End-to-end factory pipeline validation
+  status: AUTHORING_COMPLETE
+  
+validation:
+  inputContractCompliant: true
+  syntheticProvenanceExplicit: true
+  noRealPeopleRepresented: true
+  noRealBusinessRepresented: true
+  noCreativeDecisionsEmbedded: true
+  assetReferencesResolve: pending_asset_creation
+  controlledImperfectionsDocumented: true
+
+---
+# END BUSINESS INPUT
+

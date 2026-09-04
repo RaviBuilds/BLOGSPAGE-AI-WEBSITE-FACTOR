@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/asset-inventory.schema.json",
+  "title": "Asset Inventory",
+  "description": "Payload shape for the Asset Inventory artifact, artifact-contracts.md section 5.3: 'Record every candidate asset and its approval status.' Produced by the Research Agent, who discovers candidate assets; approved by a human. Consumed by the Creative Director, Composition Designer, and Implementation Engineer. Composed with the shared envelope (_common/artifact-envelope.schema.json), which carries artifactId, artifactType, projectId, artifactVersion, versionStatus, producer and the version-provenance fields. This document defines the payload only, per schema-architecture.md section 2. A schema is a shape, never a rule: it does not decide what happens when the shape is violated (schema-architecture.md section 5.1).",
+  "$comment": "Field set is exactly section 5.3's 'Required information' row: asset identity; origin and source; usage-rights position; current status per section 3; suitability observations, including quality and quantity limits. Section 5.3's Purpose line ('record every candidate asset AND ITS approval status') and its five required-information elements describe attributes of one candidate asset, not five independent buckets of unrelated facts, unlike Business Research and Brand Profile, whose required-information rows are genuinely separate categories. For that reason the payload is modelled as a single array of a local 'assetEntry' definition, one entry per candidate asset, carrying identity, origin/source, usage-rights position, status, and per-asset suitability observations together. Origin/source and usage-rights position each render as the shared 'factualItem' definition, which carries artifact-contracts.md section 2's six-column provenance table (fact, value, source, source type, confidence, verification status) exactly, per section 0.8 of the Factory Operating System.",
+  "$comment_quantityLimits": "Section 5.3's suitability-observations element explicitly includes 'quality and quantity limits', and its validation expectation adds: 'Asset scarcity is recorded as a constraint rather than left implicit.' Quality is naturally an observation about one asset and sits inside each assetEntry's suitabilityObservations. Quantity/scarcity is an observation about the candidate-asset set as a whole (for example, too few usable images exist in total) and cannot be attached to any single assetEntry without asserting a relationship the contract does not state. 'aggregateSuitabilityObservations' at the payload's top level carries that set-level half of the same required-information element; it is not a new subject, only the correct scope for the part of section 5.3's own wording that is inherently about the whole set rather than one candidate.",
+  "$comment_identity": "GAP - artifact-contracts.md section 5.3 requires an 'asset identity' for each candidate asset but no canonical document defines what that identity looks like: no ID scheme, URL convention, UUID, slug, filename, or hash requirement is stated anywhere. This mirrors schema-architecture.md's concern H, under which the envelope's own 'identifier' definition is typed as a non-empty string with no pattern, format, or length asserted. 'assetIdentity' below is typed the same way for the same reason. This is sufficient to record what was found here, but artifact-contracts.md section 5.6 requires the Implementation Report to record 'assets used, by approved identity' - any schema for that artifact inherits this same unresolved identity format, since referencing an asset by identity presupposes the identity scheme this document deliberately does not invent.",
+  "$comment_businessResearchBoundary": "business-research.schema.json's 'discoveredAssets' field carries only the Research Agent's findings about what assets were found, and its own description states that approval status belongs to this artifact instead, to avoid duplicating this contract. This schema is the mirror image: it does not restate Business Research's factual findings about what a candidate asset is; it owns the lifecycle, approval, and usage-rights dimension of candidate assets, per section 5.3.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "ASSET_INVENTORY"
+        }
+      },
+      "$comment": "Pins the shared envelope's artifactType to this artifact's own member of the closed twelve-type set (artifact-contracts.md section 5.3; envelope definitions.artifactType). A subset restriction, not a new value: ASSET_INVENTORY is already a member of that enum."
+    },
+    {
+      "type": "object",
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/assetEntry"
+          },
+          "description": "Every candidate asset and its approval status, per section 5.3's Purpose line. One entry per candidate asset; an empty array records that no candidate assets were found at all."
+        },
+        "aggregateSuitabilityObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "The quantity/scarcity half of section 5.3's suitability-observations element, recorded at the level of the whole candidate-asset set rather than any single asset, per this schema's $comment_quantityLimits. Renders section 5.3's own validation expectation: 'Asset scarcity is recorded as a constraint rather than left implicit.'"
+        }
+      },
+      "required": [
+        "assets",
+        "aggregateSuitabilityObservations"
+      ],
+      "$comment_required": "Both are named or directly operationalized by section 5.3's 'Required information' row and its validation expectation, and artifact-contracts.md section 1 rule 4 states an artifact is either complete or incomplete and partial artifacts do not pass gates. Empty arrays are valid ways to record that no candidate assets exist or that no set-level scarcity observation applies.",
+      "$comment_additionalProperties": "additionalProperties is deliberately not set to false. No canonical document states that the Asset Inventory payload is closed to exactly these two top-level fields, and closing it here would assert a rule the contract does not state."
+    }
+  ],
+  "definitions": {
+    "assetEntry": {
+      "type": "object",
+      "properties": {
+        "assetIdentity": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identity of this candidate asset, per section 5.3's 'Asset identity' required-information element.",
+          "$comment": "GAP - see this schema's top-level $comment_identity. No canonical document defines an identifier format; typed as a non-empty string only, matching the envelope's own unresolved 'identifier' definition."
+        },
+        "originAndSource": {
+          "$ref": "#/definitions/factualItem",
+          "description": "Origin and source of this asset, per section 5.3's 'origin and source' required-information element. Rendered as a factualItem so the claim carries the same six-column provenance as any other factual record, per artifact-contracts.md section 2."
+        },
+        "usageRightsPosition": {
+          "$ref": "#/definitions/factualItem",
+          "description": "Usage-rights position for this asset, per section 5.3's 'usage-rights position' required-information element. Rendered as a factualItem for the same reason as originAndSource."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "discovered",
+            "reviewed",
+            "approved",
+            "used",
+            "rejected"
+          ],
+          "description": "Current status per artifact-contracts.md section 3's asset status lifecycle: Discovered, Reviewed, Approved, Used, Rejected. A closed five-member set stated exactly by that section, unlike sourceType/confidence which are left open elsewhere in this document.",
+          "$comment": "Section 3's transition rules (only DISCOVERED may reach REJECTED; a rejected asset may not be reintroduced without a new human decision; the discoverer may not approve its own discovery) are runtime authority rules, not shape, per schema-architecture.md section 5.1. This schema represents only the five-member value set, not those transition or authority rules."
+        },
+        "suitabilityObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "The quality half of section 5.3's suitability-observations element, recorded per asset. See this schema's top-level $comment_quantityLimits for why the quantity/scarcity half is recorded separately, at aggregateSuitabilityObservations."
+        }
+      },
+      "required": [
+        "assetIdentity",
+        "originAndSource",
+        "usageRightsPosition",
+        "status",
+        "suitabilityObservations"
+      ],
+      "$comment": "Every field renders a distinct element of section 5.3's 'Required information' row for one candidate asset. additionalProperties is deliberately not set to false, for the same reason given at the payload level: no canonical document closes this shape to exactly these five fields."
+    },
+    "factualItem": {
+      "type": "object",
+      "properties": {
+        "fact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The claim itself, per artifact-contracts.md section 2 / Factory Operating System section 0.8. Example given there: \"Google rating\"."
+        },
+        "value": {
+          "description": "The stated value, per section 2. Left untyped: section 0.8's own example ('\"value\": \"4.8\"') renders a numeric-looking rating as a JSON string, and no canonical document fixes a type for this column.",
+          "$comment": "SHAPE UNRESOLVED - no canonical document restricts this column to a JSON type. Deliberately left as an unconstrained schema so string, number and boolean values are all representable without inventing a restriction."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where it came from, per section 2. Example given there: \"Google Business Profile\"."
+        },
+        "sourceType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The kind of source, per section 2's 'Source type' column.",
+          "$comment": "GAP - no canonical document enumerates a closed set of source types. Typed as a free string rather than an enum to avoid inventing one."
+        },
+        "confidence": {
+          "description": "Strength of support, per section 2's 'Confidence' column.",
+          "$comment": "GAP - no canonical document defines a confidence scale (no levels, no numeric range, no labels). Left as an unconstrained schema rather than an invented scale."
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "inferred",
+            "unknown"
+          ],
+          "description": "Verified, inferred, or unknown, per artifact-contracts.md section 2's 'Verification status' column, which states exactly this three-member set. The Factory Operating System section 0.8 example spells this column's key as 'status'; renamed to 'verificationStatus' here to disambiguate from the envelope's versionStatus and from asset status (section 3), which are separate vocabularies for separate concerns."
+        }
+      },
+      "required": [
+        "fact",
+        "value",
+        "source",
+        "sourceType",
+        "confidence",
+        "verificationStatus"
+      ],
+      "$comment": "Renders artifact-contracts.md section 2 exactly: 'Per section 0.8, every factual item carried by any artifact records:' followed by these six elements. 'A factual item without provenance is treated as unknown, regardless of plausibility' is a runtime consequence of a missing or incomplete record, per that section, and is not itself a shape; this schema does not encode that consequence, only the six-element record."
+    }
+  }
+}

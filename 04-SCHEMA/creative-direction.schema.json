@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/creative-direction.schema.json",
+  "title": "Creative Direction",
+  "description": "Payload shape for the Creative Direction artifact, artifact-contracts.md section 5.10: 'Author the Design Intent Statement; produce creative rationale, positioning read, brand personality and maturity assessment per this business.' Produced by the Creative Director; consumed by the Creative Director for blueprint authoring and by the Composition Designer. Composed with the shared envelope (_common/artifact-envelope.schema.json), which carries artifactId, artifactType, projectId, artifactVersion, versionStatus, owningPhase, producer, executingRole, criticIteration, factoryVersion, registryVersions, and consumedArtifactVersions. This document defines the payload only, per schema-architecture.md section 2. A schema is a shape, never a rule: it does not decide what happens when the shape is violated (schema-architecture.md section 5.1).",
+  "$comment": "Field set is exactly artifact-contracts.md section 5.10's 'Required information' row: Design Intent Statement (authored here); creative rationale; positioning drawn from business intelligence; brand personality and maturity assessment per this business; exact versions consumed. The Design Intent Statement is authoritative in this artifact per section 5.10 and section 6 invariant 7: the Design Blueprint consumes it by reference and does not re-author it. There is exactly one authored instance per project. This is NOT a separate artifact and NOT a separate schema file.",
+  "$comment_envelopeFieldsNotDuplicated": "The envelope already owns: artifactType, projectId, artifactVersion, versionStatus, owningPhase, producer, executingRole, criticIteration, factoryVersion, registryVersions, consumedArtifactVersions. These fields are NOT duplicated in the Creative Direction payload below. They are inherited via allOf from _common/artifact-envelope.schema.json and constrained where necessary (artifactType pinned to CREATIVE_DIRECTION, registryVersions and consumedArtifactVersions required for this artifact type per artifact-contracts.md section 7 'Applies to' table).",
+  "$comment_compositionPlanNotIncluded": "The Composition Plan is a SEPARATE ARTIFACT embedded in the Design Blueprint (artifact-contracts.md section 5.11), NOT part of Creative Direction. It does NOT appear in this schema. The Composition Plan has no independent version or status per section 5.11; it is produced by the Composition Designer using Phase 3 vocabulary and consumed by the Creative Director for blueprint integration.",
+  "$comment_phase4Boundary": "Phase 4 owns design language SELECTION and per-project parameter VALUES (04-ai-creative-direction.md section 39.1), not the design language or parameter DEFINITIONS. Design languages DL-01 through DL-05 are Phase 2-owned and registered in design-language-registry.md. Parameters with registry entries (creativeIntensity, visualTension, contentDensity, brandMaturity) are cross-phase constructs; this artifact records the Creative Director's per-project value assignment. Parameters WITHOUT registry entries (creativeRisk, imageDominance, typographyDominance) are document-local to Phase 4 per parameter-registry.md decision 20 and Phase 4 sections 19.1, 22.3.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "CREATIVE_DIRECTION"
+        }
+      }
+    },
+    {
+      "properties": {
+        "registryVersions": {
+          "required": [
+            "parameterRegistry",
+            "designLanguageRegistry",
+            "phaseOwnershipMatrix",
+            "criticMetricsRegistry"
+          ]
+        },
+        "consumedArtifactVersions": {
+          "minItems": 1
+        }
+      },
+      "required": [
+        "registryVersions",
+        "consumedArtifactVersions"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "designIntentStatement": {
+          "type": "string",
+          "minLength": 10,
+          "description": "The Design Intent Statement: a 2-3 sentence articulation of this business's creative point of view, per 04-ai-creative-direction.md section 10. This is the authoritative statement authored in this artifact, per artifact-contracts.md section 5.10 and section 6 invariant 7. The Design Blueprint (section 5.5) consumes it by reference and does not re-author it."
+        },
+        "creativeRationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Creative rationale for the direction taken, per artifact-contracts.md section 5.10."
+        },
+        "positioningRead": {
+          "type": "object",
+          "properties": {
+            "businessDNA": {
+              "type": "string",
+              "minLength": 1
+            },
+            "customerPsychology": {
+              "type": "string",
+              "minLength": 1
+            },
+            "valueProposition": {
+              "type": "string",
+              "minLength": 1
+            },
+            "positioningStatement": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["businessDNA", "customerPsychology", "valueProposition", "positioningStatement"]
+        },
+        "brandPersonality": {
+          "type": "object",
+          "properties": {
+            "innovative": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "luxurious": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "playful": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "sophisticated": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "bold": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "warm": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "trustworthy": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "energetic": { "type": "integer", "minimum": 1, "maximum": 10 }
+          },
+          "required": ["innovative", "luxurious", "playful", "sophisticated", "bold", "warm", "trustworthy", "energetic"],
+          "description": "Brand personality matrix: eight dimensions scored 1-10 per Phase 4 section 11.",
+          "$comment": "Phase 4 section 11 explicitly states: 'Rate the brand on eight personality dimensions (1–10)' — this is an explicit scale declaration. The eight dimension names are preserved exactly as written."
+        },
+        "brandMaturity": {
+          "description": "Brand maturity classification per Phase 4 section 12. CONFLICT PRESERVED: Phase 4 uses 4-level scale (Weak/Developing/Established/Strong), registry defines 3 values (Weak/Developing/Mature). Scale conflict recorded in parameter-registry.md section 7 issue 14. NOT RESOLVED.",
+          "$comment": "GAP / CONFLICT PRESERVED - Phase 4 section 12.1 explicitly records the unresolved scale conflict. Left untyped (no enum, no integer) rather than inventing a resolution."
+        },
+        "assetCapability": {
+          "type": "object",
+          "properties": {
+            "imageCapability": { "type": "integer", "minimum": 0, "maximum": 10 },
+            "videoCapability": { "type": "integer", "minimum": 0, "maximum": 10 },
+            "peopleCapability": { "type": "integer", "minimum": 0, "maximum": 10 },
+            "environmentCapability": { "type": "integer", "minimum": 0, "maximum": 10 }
+          },
+          "required": ["imageCapability", "videoCapability", "peopleCapability", "environmentCapability"],
+          "description": "Asset capability scores per Phase 4 section 13.2. Four scores on explicit 0-10 range.",
+          "$comment": "Phase 4 section 13.2 explicitly declares 0–10 range. This is the ONLY Phase 4 construct with a 0-floor rather than 1-floor."
+        },
+        "designLanguage": {
+          "type": "object",
+          "properties": {
+            "primaryLanguage": {
+              "type": "string",
+              "enum": ["DL-01", "DL-02", "DL-03", "DL-04", "DL-05"],
+              "description": "Primary design language selection per Phase 4 section 17. Must be one of the five Phase 2-registered design languages. Locked for V1 per design-language-registry.md section 1."
+            },
+            "secondaryInfluence": {
+              "type": "string",
+              "enum": ["DL-01", "DL-02", "DL-03", "DL-04", "DL-05"],
+              "description": "Secondary influence (optional) per Phase 4 section 17."
+            }
+          },
+          "required": ["primaryLanguage"],
+          "description": "Design language selection per Phase 4 sections 16-17. Phase 4 owns the SELECTION; Phase 2 owns the design language definitions.",
+          "$comment": "The five design language IDs are exactly the set registered in design-language-registry.md section 3.1 and locked for V1 per section 1."
+        },
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "creativeIntensity": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Creative intensity score, 1-10 per Phase 4 section 18."
+            },
+            "creativeRisk": {
+              "description": "Creative risk per Phase 4 section 19: separated from intensity to allow high intensity while keeping risk low.",
+              "$comment": "GAP / NOT REGISTERED - Phase 4 section 19.1: 'creativeRisk has no Parameter Registry entry' and 'no declared scale'. Left untyped rather than inventing a scale."
+            },
+            "visualTension": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Visual tension score, 1-10 per Phase 4 section 20."
+            },
+            "contentDensity": {
+              "type": "string",
+              "enum": ["Low", "Medium", "High"],
+              "description": "Content density level per Phase 4 section 21."
+            },
+            "imageDominance": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Image dominance score, 1-10 per Phase 4 section 22.1.",
+              "$comment": "NOT REGISTERED - Phase 4 section 22.3: 'imageDominance appears in parameter-registry.md' is FALSE. Document-local to Phase 4 per decision 20."
+            },
+            "typographyDominance": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Typography dominance score, 1-10 per Phase 4 section 22.2.",
+              "$comment": "NOT REGISTERED - Phase 4 section 22.3 confirms no registry entry. Not a strict inverse of imageDominance per section 22.2."
+            }
+          },
+          "required": ["creativeIntensity", "visualTension", "contentDensity"],
+          "description": "Per-project parameter values per Phase 4 sections 18-22.",
+          "$comment": "creativeIntensity, visualTension, contentDensity are REQUIRED (core strategic decisions with registry entries). creativeRisk, imageDominance, typographyDominance are OPTIONAL (document-local, no registry entries)."
+        }
+      },
+      "required": [
+        "designIntentStatement",
+        "creativeRationale",
+        "positioningRead",
+        "brandPersonality",
+        "brandMaturity",
+        "assetCapability",
+        "designLanguage",
+        "parameters"
+      ]
+    }
+  ],
+  "definitions": {
+    "placeholder": "Definitions will be added if needed"
+  }
+}

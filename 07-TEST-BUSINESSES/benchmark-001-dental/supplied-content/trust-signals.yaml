@@ -1,0 +1,95 @@
+---
+# TRUST SIGNALS — MERIDIAN DENTAL STUDIO
+# SYNTHETIC TEST DATA
+---
+
+sourceNote: >
+  All trust signals, statistics, awards, and recognitions are FICTIONAL for 
+  SYNTHETIC_TEST benchmark. These do not represent real achievements or verifiable facts.
+
+trustSignals:
+  - id: trust-01
+    type: "Years Established"
+    category: EXPERIENCE
+    
+    headline: "10 Years Serving the Community"
+    description: >
+      Since opening in 2016, Meridian Dental Studio has built a reputation for 
+      exceptional cosmetic and general dentistry. Our practice has grown primarily 
+      through patient referrals—over 70% of our new patients come to us because 
+      someone they trust recommended our care.
+    
+    statistic: "10+ years"
+    statisticNote: "Fictional duration (2016-2026)"
+    
+    verification: SYNTHETIC_TEST
+    note: "Fictional trust signal for testing purposes"
+
+  - id: trust-02
+    type: "Advanced Technology"
+    category: CAPABILITY
+    
+    headline: "Digital Smile Design Technology"
+    description: >
+      We invested early in digital smile design software that allows patients to preview 
+      their cosmetic results before treatment begins. This technology, combined with 
+      intraoral scanning and same-day crown capability, gives our patients clarity and 
+      confidence throughout their treatment journey. We don't adopt technology for its 
+      own sake—we choose tools that genuinely improve patient outcomes and experience.
+    
+    technologies:
+      - Digital smile design and visualization
+      - Intraoral 3D scanning
+      - CEREC same-day crown technology
+      - Cone beam CT imaging for implant planning
+      - Digital X-rays with 90% less radiation
+    
+    verification: SYNTHETIC_TEST
+    note: "Fictional technology claims for testing purposes"
+
+  - id: trust-03
+    type: "Patient-Centered Care Philosophy"
+    category: APPROACH
+    
+    headline: "Unhurried, Personalized Appointments"
+    description: >
+      We deliberately schedule longer appointments than typical dental practices because 
+      quality care cannot be rushed. Every patient receives a dedicated treatment 
+      coordinator who guides them from consultation through completion. We never pressure 
+      patients to proceed with treatment before they feel ready, and we provide detailed 
+      cost estimates upfront with flexible payment options. Our goal is not to maximize 
+      daily production—it's to deliver dentistry that patients are genuinely thrilled with.
+    
+    principles:
+      - Extended appointment times for thorough care
+      - Dedicated treatment coordinators for every patient
+      - No-pressure consultations with detailed cost transparency
+      - Multiple payment and financing options
+      - Same-day emergency appointments when possible
+    
+    verification: SYNTHETIC_TEST
+    note: "Fictional care philosophy for testing purposes"
+
+  - id: trust-04
+    type: "Recognition"
+    category: AWARD
+    
+    headline: "Fictional Regional Excellence Award 2024"
+    description: >
+      Dr. Mitchell was recognized by the Fictional State Dental Association with the 
+      Regional Excellence in Cosmetic Dentistry Award in 2024, honoring her commitment 
+      to natural-looking aesthetic results and patient-centered care approach.
+    
+    awardName: "Regional Excellence in Cosmetic Dentistry Award"
+    issuer: "Fictional State Dental Association"
+    recipient: "Dr. Sarah Mitchell"
+    year: 2024
+    
+    verification: SYNTHETIC_TEST
+    note: >
+      COMPLETELY FICTIONAL AWARD. This is synthetic test data and does not represent 
+      a real award or recognition. Created to test trust signal handling and verification 
+      discipline.
+
+---
+# END TRUST SIGNALS

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Meridian Dental Studio Logo - FICTIONAL BRAND MARK FOR SYNTHETIC TEST -->
+  <!-- Simple, professional dental logo with blue color scheme -->
+  
+  <!-- Tooth icon element -->
+  <g id="tooth-mark">
+    <path d="M 25 15 Q 20 15 18 20 Q 16 25 16 30 Q 16 40 20 45 Q 22 47 25 47 Q 28 47 30 45 Q 34 40 34 30 Q 34 25 32 20 Q 30 15 25 15 Z" 
+          fill="#2563EB" 
+          stroke="#2563EB" 
+          stroke-width="1"/>
+    <ellipse cx="25" cy="24" rx="3" ry="4" fill="#FFFFFF" opacity="0.3"/>
+  </g>
+  
+  <!-- Practice name -->
+  <text x="45" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#1E293B">
+    MERIDIAN
+  </text>
+  <text x="45" y="45" font-family="Arial, sans-serif" font-size="10" font-weight="400" fill="#64748B" letter-spacing="1.5">
+    DENTAL STUDIO
+  </text>
+  
+  <!-- Note: This is a FICTIONAL logo for SYNTHETIC_TEST benchmark only -->
+</svg>

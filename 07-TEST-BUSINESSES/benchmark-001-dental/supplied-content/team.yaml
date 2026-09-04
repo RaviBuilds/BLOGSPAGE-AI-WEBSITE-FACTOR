@@ -1,0 +1,182 @@
+---
+# TEAM — MERIDIAN DENTAL STUDIO
+# SYNTHETIC TEST DATA
+---
+
+sourceNote: >
+  All team member identities, credentials, and biographies are FICTIONAL
+  for SYNTHETIC_TEST benchmark. No real dentists or individuals are represented.
+  All credentials, license numbers, statistics, and career details are invented.
+
+team:
+  - id: team-01
+    name: "Dr. Sarah Mitchell, DMD"
+    role: "Founder & Lead Cosmetic Dentist"
+    businessPriority: PRIMARY
+    
+    credentials:
+      - degree: "Doctor of Dental Medicine (DMD)"
+        institution: "Fictional University School of Dentistry"
+        year: 2010
+        note: "Completely fictional credential"
+      
+      - certification: "Advanced Aesthetic Dentistry Certification"
+        issuer: "Fictional Academy of Cosmetic Dentistry"
+        year: 2014
+        note: "Completely fictional certification"
+      
+      - specialization: "Digital Smile Design"
+        training: "Fictional International Digital Dentistry Institute"
+        year: 2015
+        note: "Completely fictional specialization"
+      
+      - experience: "16 years in clinical practice"
+        note: "Fictional statistic for test purposes"
+    
+    biography: >
+      Dr. Mitchell founded Meridian Dental Studio in 2016 with a clear vision: to create 
+      a practice where clinical excellence and genuine patient care coexist without 
+      compromise. After six years in a high-volume corporate dental setting, she recognized 
+      that the best dentistry happens when practitioners have time to listen, plan 
+      thoroughly, and execute with precision rather than speed.
+      
+      
+      Her approach to cosmetic dentistry emphasizes natural results that complement each 
+      patient's unique facial structure and personality. Rather than applying a formulaic 
+      approach to smile design, she takes time to understand how patients use their smile, 
+      what concerns them most, and what outcome would genuinely improve their confidence. 
+      This philosophy has led to high patient satisfaction and a practice built almost 
+      entirely on referrals from existing patients.
+      
+      
+      Dr. Mitchell stays current with evolving techniques through regular continuing 
+      education, but she's selective about which technologies and methods she adopts. 
+      Digital smile design, for instance, transformed her cosmetic consultations by giving 
+      patients clarity about expected results. Same-day crown technology reduced appointment 
+      time without compromising quality. She evaluates every new tool or technique against 
+      a single question: does it improve patient outcomes, or just practice efficiency?
+      
+      
+      Outside the practice, Dr. Mitchell mentors dental students and volunteers with 
+      community oral health initiatives. She lives locally with her family and can often 
+      be found hiking local trails or exploring the region's farmers markets.
+
+    specialties:
+      - Porcelain veneers and smile makeovers
+      - Full-mouth rehabilitation
+      - Digital smile design
+      - Complex aesthetic cases
+      
+    languages:
+      - English
+      
+
+  - id: team-02
+    name: "Dr. James Chen, DDS"
+    role: "Restorative & Implant Specialist"
+    businessPriority: SECONDARY
+    
+    credentials:
+      - degree: "Doctor of Dental Surgery (DDS)"
+        institution: "Fictional State University College of Dentistry"
+        year: 2012
+        note: "Completely fictional credential"
+      
+      - certification: "Advanced Implant Dentistry"
+        issuer: "Fictional American Academy of Implant Dentistry"
+        year: 2015
+        note: "Completely fictional certification"
+      
+      - training: "Full Arch Restoration Fellowship"
+        institution: "Fictional Institute for Advanced Dental Education"
+        year: 2017
+        note: "Completely fictional training"
+      
+      - experience: "Advanced training in smile design"
+        note: >
+          CONTROLLED IMPERFECTION: This credential is intentionally underspecified—
+          no specific program or institution named. Tests verification discipline
+          and trust signal assessment (IMPERFECTION_06).
+    
+    biography: >
+      Dr. Chen joined Meridian in 2018, bringing specialized expertise in dental implants 
+      and complex restorative cases. His technical precision and calm demeanor make him 
+      particularly effective with patients facing extensive dental work who may feel 
+      overwhelmed by the scope of treatment needed.
+      
+      
+      He has placed over 400 dental implants and completed hundreds of full-mouth 
+      rehabilitation cases, but he's most proud of his ability to help patients who 
+      believed their dental problems were beyond repair. Many of his patients come to 
+      Meridian after years of avoiding dentists due to embarrassment about their dental 
+      condition. Dr. Chen's non-judgmental approach and clear communication about treatment 
+      options help patients move from avoidance to active participation in their care.
+      
+      
+      His technical skills extend to advanced bone grafting, sinus lifts, and implant-supported 
+      full-arch restoration. He uses 3D imaging and surgical guides to plan implant placement 
+      with precision, which improves outcomes and reduces recovery time. Patients appreciate 
+      his willingness to explain procedures in plain language and his detailed post-operative 
+      care instructions.
+
+    specialties:
+      - Dental implant placement and restoration
+      - Full-mouth rehabilitation
+      - Bone grafting and ridge augmentation
+      - Complex crown and bridge work
+      
+    languages:
+      - English
+      - Mandarin
+      
+    funFact: "Builds custom furniture as a hobby"
+
+  - id: team-03
+    name: "Dr. Emily Rodriguez, DDS"
+    role: "Sedation & General Dentistry"
+    businessPriority: SECONDARY
+    
+    credentials:
+      - degree: "Doctor of Dental Surgery (DDS)"
+        institution: "Fictional Pacific Dental College"
+        year: 2016
+        note: "Completely fictional credential"
+      
+      - certification: "Oral Conscious Sedation Permit"
+        issuer: "Fictional State Dental Board"
+        year: 2019
+        note: "Completely fictional certification"
+      
+      - experience: "10 years clinical experience"
+        note: "Fictional statistic"
+    
+    biography: >
+      Dr. Rodriguez joined Meridian in 2022, adding sedation dentistry capability and 
+      expanded evening hours at the Riverside location. Her certification in oral conscious 
+      sedation allows the practice to help patients with severe dental anxiety receive care 
+      comfortably.
+      
+      
+      She has a particular passion for helping patients overcome dental fear, having 
+      witnessed how untreated dental problems compound over time when anxiety prevents 
+      people from seeking care.
+      
+      
+      CONTROLLED IMPERFECTION: This biography is intentionally shorter than the lead
+      practitioners' biographies to test layout flexibility for varied content lengths
+      (IMPERFECTION_02).
+
+    specialties:
+      - Sedation dentistry
+      - Anxiety management
+      - General and preventive care
+      
+    languages:
+      - English
+      - Spanish
+      
+    funFact: "Volunteers at free dental clinics on weekends"
+
+---
+# END TEAM
+

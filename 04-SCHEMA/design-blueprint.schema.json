@@ -1,0 +1,268 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/design-blueprint.schema.json",
+  "title": "Design Blueprint",
+  "description": "Phase 4 artifact produced by Creative Director. Records design decisions, incorporates Composition Plan as embedded component, and references Design Intent Statement from Creative Direction artifact. Per artifact-contracts.md section 5.5.",
+  "$comment": "COMPOSITION PLAN IS EMBEDDED: Per artifact-contracts.md section 5.11, the Composition Plan is a component of this blueprint record, not a peer artifact. DESIGN INTENT BY REFERENCE: Per section 5.10 and section 6 invariant 7, the Design Intent Statement is authored in Creative Direction and consumed here by reference only. UNRESOLVED GAPS: Several contract-required concepts lack defined shapes in Phase 4 canonical source.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "DESIGN_BLUEPRINT"
+        }
+      },
+      "required": ["artifactType"]
+    },
+    {
+      "properties": {
+        "registryVersions": {
+          "required": [
+            "parameterRegistry",
+            "designLanguageRegistry",
+            "phaseOwnershipMatrix",
+            "criticMetricsRegistry"
+          ]
+        }
+      },
+      "required": [
+        "registryVersions"
+      ],
+      "$comment": "REQUIRED FOR DESIGN BLUEPRINT: artifact-contracts.md section 7 'Applies to' table explicitly lists Design Blueprint as requiring all four registry versions: parameter, design language, phase ownership, critic metrics."
+    },
+    {
+      "properties": {
+        "designIntentReference": {
+          "type": "object",
+          "description": "Reference to Design Intent Statement in Creative Direction artifact. Per artifact-contracts.md section 5.10 and section 6 invariant 7, the Design Intent Statement is authored in Creative Direction and consumed here by reference only. The Blueprint does not re-author it.",
+          "$comment": "REFERENCE SHAPE UNRESOLVED: schema-architecture.md section 4.3 concern J states what by reference means as a shape is not stated anywhere. This minimal reference structure identifies the authoritative Creative Direction artifact and version consumed.",
+          "required": ["creativeDirectionArtifactId", "creativeDirectionVersion"],
+          "properties": {
+            "creativeDirectionArtifactId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Artifact ID of the Creative Direction artifact containing the authoritative Design Intent Statement."
+            },
+            "creativeDirectionVersion": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Exact version of the Creative Direction artifact consumed, per artifact-contracts.md section 7 rule on exact consumed versions."
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "strategy": {
+          "type": "object",
+          "description": "Design strategy parameters and selections. Phase 4 section 36.2.",
+          "required": ["primaryLanguage"],
+          "properties": {
+            "primaryLanguage": {
+              "type": "string",
+              "enum": ["DL-01", "DL-02", "DL-03", "DL-04", "DL-05"],
+              "description": "Selected primary visual grammar. Canonical set from design-language-registry.md section 1: DL-01 Editorial Luxury, DL-02 Swiss/Structured, DL-03 Bold Energetic, DL-04 Soft Premium/Wellness, DL-05 Architectural/Sophisticated. V1 locked set."
+            },
+            "secondaryInfluence": {
+              "type": "string",
+              "enum": ["DL-01", "DL-02", "DL-03", "DL-04", "DL-05"],
+              "description": "Secondary design language influence. Phase 4 section 17. May be same as primaryLanguage per section 17."
+            },
+            "creativeIntensity": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Creative intensity 1-10. Phase 4 section 18, parameter-registry.md. NOT bounded by creativeBudget per parameter-registry.md section 2.3."
+            },
+            "visualTension": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10,
+              "description": "Visual tension 1-10. Phase 4 section 20, parameter-registry.md."
+            },
+            "contentDensity": {
+              "type": "string",
+              "enum": ["Low", "Medium", "High"],
+              "description": "Content density classification. Phase 4 section 21, parameter-registry.md."
+            },
+            "creativeRisk": {
+              "description": "Creative risk assessment. Phase 4 section 19.1 and section 36.2. REGISTRY-ABSENT: No parameter-registry.md entry, no declared scale.",
+              "$comment": "UNCONSTRAINED: Phase 4 section 19.1 states no scale declared, no canonical machine type. Section 36.2 flags as registry-absent. Illustrative value 3 does not establish its type. No schema restriction is therefore imposed."
+            },
+            "competitorSameness": {
+              "description": "Competitive landscape sameness. Phase 4 section 15.2 and section 36.2. REGISTRY-ABSENT: No parameter-registry.md entry, no declared scale.",
+              "$comment": "UNCONSTRAINED: Section 36.2 flags as registry-absent. Canonical machine type unresolved. Phase 4 uses Low/Medium/High terminology and illustrative value 'high'. No machine type is therefore imposed."
+            },
+            "brandMaturity": {
+              "description": "Brand maturity assessment. Phase 4 section 12.1 and section 36.2. CONFLICTING SCALES: Phase 2 section 13 uses categorical (Mature/Developing/Weak), Phase 4 section 4.10 uses 1-10 numeric.",
+              "$comment": "UNRESOLVED CONFLICT: Two incompatible scales per Phase 4 section 12.1. Section 36.2 marks as contested. Preserved as minimally permissive oneOf without choosing or inventing mapping.",
+              "oneOf": [
+                { "type": "string" },
+                { "type": "number" }
+              ]
+            }
+          }
+        }
+      },
+      "required": ["strategy"]
+    },
+    {
+      "properties": {
+        "sections": {
+          "type": "array",
+          "description": "COMPOSITION PLAN COMPONENT (embedded). Ordered list of section identifiers. Order is the section 26 sequencing decision. Required per artifact-contracts.md section 5.11: concrete section sequence. Phase 4 section 36.2.",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "composition": {
+          "type": "object",
+          "description": "COMPOSITION PLAN COMPONENT (embedded). Per-section arrangement and pattern selections. Phase 4 section 36.2. Keys are section identifiers from sections array. Required per artifact-contracts.md section 5.11: per-section arrangement, pattern selections.",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "enum": ["C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C10"],
+                  "description": "Composition mode. Phase 3 section 9: C01 Typographic Dominant, C02 Image Dominant, C03 Information Efficient, C04 Product/Service Grid, C05 Media-First/Immersive, C06 Narrative/Story, C07 Human/Social Proof, C08 Location/Spatial, C09 Hybrid/Layered, C10 Atmospheric/Cinematic."
+                },
+                "pattern": {
+                  "type": "string",
+                  "description": "Pattern ID. Phase 3 section 11 family-prefixed format. LIBRARY EMPTY: 0 of approximately 87 patterns specified per artifact-contracts.md section 8 item 5 and Phase 4 section 29.2. Cannot enumerate valid IDs.",
+                  "$comment": "Pattern Library is provisional/incomplete per schema-architecture.md section 4.6. Canonical identifier grammar is not yet defined. Schema intentionally does not impose regex constraint."
+                }
+              }
+            }
+          }
+        },
+        "rhythm": {
+          "type": "array",
+          "description": "COMPOSITION PLAN COMPONENT (embedded). Visual rhythm sequence. Phase 4 section 32.3, Phase 3 section 17. Phase 4 section 36.2 pacing field.",
+          "items": { "type": "string" }
+        },
+        "anchors": {
+          "type": "array",
+          "description": "COMPOSITION PLAN COMPONENT (embedded). Visual anchor identifiers. Phase 4 section 32.1. Phase 4 section 36.2 pacing field.",
+          "items": { "type": "string" }
+        },
+        "sectionRelationships": {
+          "type": "array",
+          "description": "COMPOSITION PLAN COMPONENT (embedded). Narrative transitions between sections. Required per artifact-contracts.md section 5.11: narrative transitions between sections. Phase 4 section 36.2 records no field exists for section relationships despite section 31 defining them.",
+          "$comment": "CONTRACT-REQUIRED OPEN STRUCTURE: Contract section 5.11 requires this concept but Phase 4 section 36.2 states no field exists. Internal serialization shape unresolved. Open structure provided per human decision Q2.",
+          "items": {}
+        },
+        "imagery": {
+          "type": "object",
+          "description": "Imagery strategy tied to approved assets. Required per artifact-contracts.md section 5.5: imagery strategy tied to approved assets.",
+          "$comment": "CONTRACT-REQUIRED OPEN STRUCTURE: Contract requires this concept but Phase 4 section 36.2 has no corresponding field structure. Internal serialization shape unresolved per human decision Q2. No asset ID formats invented."
+        },
+        "constraints": {
+          "type": "object",
+          "description": "Explicitly stated constraints. Required per artifact-contracts.md section 5.5: explicitly stated constraints.",
+          "$comment": "CONTRACT-REQUIRED OPEN STRUCTURE: Contract requires this concept but Phase 4 section 36.2 has no corresponding field structure. Internal serialization shape unresolved per human decision Q2."
+        },
+        "accessibility": {
+          "type": "object",
+          "description": "Accessibility expectations. Required per artifact-contracts.md section 5.5: accessibility and SEO expectations. Foundation-owned absolute property per schema-architecture.md section 3.8: absolute, non-tradeable, non-overridable, not weighted, outside creative exception mechanism.",
+          "$comment": "Requirements capture only. No WCAG levels, contrast ratios, touch targets, scores, or thresholds invented per human decision accessibility rules. Enforcement in quality gates."
+        },
+        "seo": {
+          "type": "object",
+          "description": "SEO expectations. Required per artifact-contracts.md section 5.5: accessibility and SEO expectations.",
+          "$comment": "Requirements capture only. No keyword strategy, rankings, search volume, keyword counts, or SEO scores invented per human decision SEO rules."
+        },
+        "business": {
+          "type": "object",
+          "description": "Business identity information. Phase 4 section 36.2.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Business name. Phase 4 section 36.2 source field."
+            },
+            "industry": {
+              "type": "string",
+              "description": "Industry classification. Phase 4 section 36.2 source field."
+            },
+            "location": {
+              "type": "string",
+              "description": "Business location. Phase 4 section 36.2 source field."
+            }
+          }
+        },
+        "truth": {
+          "type": "object",
+          "description": "Truth classification per artifact-contracts.md section 2. Phase 4 section 36.2. Three keys correspond exactly to section 5 VERIFIED / INFERRED / UNKNOWN classes.",
+          "properties": {
+            "verifiedClaims": {
+              "type": "array",
+              "description": "VERIFIED truth class. Phase 4 section 36.2 source field. Collection without stated element shape.",
+              "items": {}
+            },
+            "inferredTraits": {
+              "type": "array",
+              "description": "INFERRED truth class. Phase 4 section 36.2 source field. Collection without stated element shape.",
+              "items": {}
+            },
+            "unknowns": {
+              "type": "array",
+              "description": "UNKNOWN truth class. Phase 4 section 36.2 source field. Collection without stated element shape.",
+              "items": {}
+            }
+          }
+        },
+        "narrative": {
+          "type": "object",
+          "description": "Narrative structure. Phase 4 section 36.2.",
+          "properties": {
+            "strategy": {
+              "type": "string",
+              "description": "Narrative strategy identifier. Phase 4 section 23 and section 36.2. Emitted as slug, not N01-N08 ID."
+            },
+            "chapters": {
+              "type": "array",
+              "description": "Narrative chapter sequence. Phase 4 section 36.2 source field.",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "checks": {
+          "type": "object",
+          "description": "Pre-gate self-checks. Phase 4 section 36.2. Four checks only; Creative Quality Gate section 37 asks nine questions with no one-to-one correspondence per section 40.",
+          "properties": {
+            "truth": {
+              "type": "boolean",
+              "description": "Truth check. Phase 4 section 36.2 source field."
+            },
+            "conversion": {
+              "type": "boolean",
+              "description": "Conversion check. Phase 4 section 36.2 source field."
+            },
+            "usability": {
+              "type": "boolean",
+              "description": "Usability check. Phase 4 section 36.2 source field. No corresponding gate question per section 40."
+            },
+            "accessibility": {
+              "type": "boolean",
+              "description": "Accessibility check. Phase 4 section 36.2 source field."
+            }
+          }
+        },
+        "novelty": {
+          "type": "object",
+          "description": "Novelty assessment. Phase 4 section 36.2.",
+          "properties": {
+            "score": {
+              "type": "number",
+              "description": "Novelty score. Phase 4 section 36.2 source field. No scale declared."
+            }
+          }
+        }
+      },
+      "required": ["designIntentReference", "accessibility", "imagery", "constraints", "seo", "sections"]
+    }
+  ]
+}

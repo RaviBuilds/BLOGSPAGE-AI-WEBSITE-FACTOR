@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/implementation-report.schema.json",
+  "title": "Implementation Report",
+  "description": "Phase 5 artifact produced by Implementation Engineer. Records what was implemented against the Design Blueprint, including declared deviations, assets used, validation evidence, and technology choices. Per artifact-contracts.md section 5.6.",
+  "$comment": "IMPLEMENTATION VERSION DEFINED: artifact-contracts.md section 7 'Implementation version defined' note states this artifact's artifactVersion IS the implementation version for a given build. There is no separate implementationVersion field. BLUEPRINT VERSION VIA ENVELOPE: The Design Blueprint version consumed is recorded in the envelope's consumedArtifactVersions array, not duplicated in payload. VALIDATION EVIDENCE IS FACTS NOT VERDICT: Section 5.6 validation expectation states 'Implementation fidelity is judged by Phase 6. This report records implementation facts for that judgement; it does not pre-judge.' NO RENDERED RESULT EMBEDDING: Rendered Result is a separate artifact per section 5.12. NO CRITIC METRICS: Phase 6 produces evaluation scores; Phase 5 records implementation facts. PHASE BOUNDARY PRESERVED: Phase 4 decides WHAT to build (Blueprint); Phase 5 records HOW it was implemented; Phase 6 evaluates the result.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "IMPLEMENTATION_REPORT"
+        }
+      },
+      "required": ["artifactType"]
+    },
+    {
+      "properties": {
+        "registryVersions": {
+          "required": ["parameterRegistry", "designLanguageRegistry", "phaseOwnershipMatrix", "criticMetricsRegistry"],
+          "$comment": "REQUIRED FOR IMPLEMENTATION REPORT: artifact-contracts.md section 7 'Applies to' table explicitly lists Implementation Report as requiring all four registry versions."
+        },
+        "consumedArtifactVersions": {
+          "minItems": 1,
+          "contains": {
+            "type": "object",
+            "properties": {
+              "artifactType": {
+                "const": "DESIGN_BLUEPRINT"
+              }
+            },
+            "required": ["artifactType"]
+          },
+          "$comment": "REQUIRED FOR IMPLEMENTATION REPORT: artifact-contracts.md section 7 table states Implementation Report must record Design Blueprint version consumed. The minItems constraint requires at least one consumed artifact; the contains constraint ensures at least one entry has artifactType DESIGN_BLUEPRINT. Section 7 'Implementation version defined' note: this artifact's own artifactVersion IS the implementation version; there is no separate implementationVersion field or identifier scheme."
+        }
+      },
+      "required": ["registryVersions", "consumedArtifactVersions"]
+    },
+    {
+      "properties": {
+        "assetsUsed": {
+          "type": "array",
+          "description": "Assets used in implementation, by approved identity, per artifact-contracts.md section 5.6 third required information bullet.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "assetIdentity": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Identity reference to approved asset from Asset Inventory.",
+                "$comment": "IDENTITY FORMAT UNDEFINED: asset-inventory.schema.json $comment_identity and schema-architecture.md section 4.1 concern H state no canonical document defines asset identity format: no ID scheme, URL convention, UUID, slug, filename, or hash requirement exists. This field accepts whatever identity scheme the Asset Inventory used."
+              },
+              "usageContext": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Optional description of where or how this asset was used in the implementation."
+              }
+            },
+            "required": ["assetIdentity"],
+            "additionalProperties": false
+          },
+          "$comment": "ASSET LIFECYCLE AUTHORITY PRESERVED: artifact-contracts.md section 5.6 requires 'Assets used, by approved identity.' Section 3 asset lifecycle: DISCOVERED → REVIEWED → APPROVED → USED. Rule 1: only approved assets may be used in implementation. Asset Inventory (section 5.3) is authority for asset identity, approval decisions, and lifecycle state. Implementation Report records which approved assets were actually consumed in this implementation. NO status or lifecycleStatus field is included; Asset Inventory remains the single lifecycle authority. Section 1 rule 3: consuming role must not modify consumed artifact; Asset Inventory is approved at Gate 1 and immutable thereafter. This array records the fact of use by referencing the approved identity; it does not duplicate or mutate the Asset Inventory's lifecycle state."
+        },
+        "declaredDeviations": {
+          "type": "array",
+          "description": "Declared deviations from the Design Blueprint and their reasons, per artifact-contracts.md section 5.6 fourth required information bullet and source-of-truth.md section 6.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "blueprintElement": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What the Design Blueprint specified."
+              },
+              "implementedAs": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What was actually implemented instead."
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Why the adaptation was necessary."
+              }
+            },
+            "required": ["blueprintElement", "implementedAs", "reason"],
+            "additionalProperties": false
+          },
+          "$comment": "THREE-PART STRUCTURE FROM PHASE 5 SECTION 22.1: Exception procedure defines adaptation record as (1) what was specified, (2) what was implemented, (3) why adaptation was necessary. source-of-truth.md section 6 rules: implementation may not silently override blueprint decisions; every deviation must be declared; undeclared deviation is validation failure; when a blueprint decision cannot be implemented, project routes to RETURN_TO_BLUEPRINT rather than implementation choosing substitute. Permitted reasons per Phase 5 section 22.1 include accessibility requirements (absolute, not subject to exception procedure), responsive requirements (e.g., mobile stack order), performance constraints, technical limitations, browser compatibility. NO DEVIATION SEVERITY, CATEGORY, APPROVAL STATUS, IMPACT SCALE, OR RESOLUTION WORKFLOW IS DEFINED in any canonical document. These classification fields are not included in V1. The canonical minimum is the three-part what/implemented/why structure explicitly stated in section 22.1."
+        },
+        "validationEvidence": {
+          "type": "object",
+          "description": "Validation evidence for the four required categories per artifact-contracts.md section 5.6 fifth required information bullet.",
+          "properties": {
+            "accessibility": {
+              "type": "object",
+              "description": "Evidence of accessibility validation. Phase 5 section 14 lists eight requirements (semantic HTML, keyboard navigation, focus visibility, contrast, touch targets, form accessibility, reduced motion, image alt) and section 14.2 lists test types (screen reader, automated scan, keyboard-only navigation, zoom test, color-blind simulation); these are validation guidelines for the Implementation Engineer rather than mandatory field structure.",
+              "$comment": "OPEN STRUCTURE - artifact-contracts.md section 5.6 requires accessibility evidence but does not define its internal shape. Phase 5 section 14.1: accessibility is absolute, inherited from Foundation, not traded against creative ambition, not subject to section 22.1 exception procedure. Eight requirements named: semantic HTML, keyboard navigation, focus visibility, contrast, touch targets, form accessibility, reduced motion, image alt. THRESHOLDS UNDEFINED: Phase 5 section 24 item 17 records no WCAG conformance level (A/AA/AAA), no contrast ratio minimum, no touch-target dimension is stated. Phase 5 section 14.1 explicitly states 'No specific standard, level or numeric threshold is stated in the Phase 5 source. No WCAG version, no conformance level, no contrast ratio, and no touch-target dimension appears anywhere in it. Those values live in Foundation. None has been supplied here.' Evidence may be structured however Implementation Engineer determines appropriate to demonstrate accessibility validation was performed. DO NOT invent WCAG level enums, contrast ratio minimums, touch-target dimensions, or accessibility scores."
+            },
+            "performance": {
+              "type": "object",
+              "description": "Evidence of performance validation. Phase 5 section 15 discusses performance budgets, image optimization, and Core Web Vitals; section 21.3 includes performance inspection as part of quality assurance.",
+              "$comment": "OPEN STRUCTURE - artifact-contracts.md section 5.6 requires performance evidence but does not define its internal shape. Phase 5 section 15.1 requires strict performance budgets but states no threshold. BUDGETS UNDEFINED: Phase 5 section 24 item 19 records 'Performance budgets undefined — section 15.1 requires strict performance budgets but states no LCP, CLS, INP, FCP or load-time threshold.' Core Web Vitals mentioned (LCP, CLS, INP, FCP) but no threshold for any metric is defined. Evidence may include measured values but schema does not enforce specific metrics, thresholds, pass/fail criteria, or performance scores. DO NOT invent LCP/CLS/INP/FCP thresholds, load-time limits, bundle-size constraints, or performance grade enums."
+            },
+            "seo": {
+              "type": "object",
+              "description": "Evidence of SEO implementation. Phase 5 section 21.4 provides eight-item checklist: title tags present and accurate, meta descriptions present, heading hierarchy correct, schema.org markup present, sitemap present, robots.txt correct, image alt attributes complete, internal linking structure clear.",
+              "$comment": "OPEN STRUCTURE - artifact-contracts.md section 5.6 requires SEO evidence but does not define its internal shape. Phase 5 section 21.4 checklist items are inspection points for quality assurance, not mandatory artifact fields. SPECIFICATION UNDEFINED: Phase 5 section 24 item 20 records 'SEO implementation detail undefined — section 16 names meta tags, structured data and technical requirements with no format, no schema.org vocabulary selection, no meta-tag specification.' No SEO score, ranking position, keyword density target, search volume, or PageRank value is defined. Evidence may describe SEO implementation and checklist completion however Implementation Engineer determines appropriate. DO NOT invent SEO score enums, ranking metrics, or keyword density thresholds."
+            },
+            "responsiveness": {
+              "type": "object",
+              "description": "Evidence of responsive implementation across desktop, tablet, and mobile tiers. Phase 5 section 12.1 requires three tiers; section 21.3 specifies quality assurance inspection at viewport widths 1440px, 768px, 390px.",
+              "$comment": "OPEN STRUCTURE - artifact-contracts.md section 5.6 requires responsiveness evidence but does not define its internal shape. Phase 5 section 12.1 requires desktop/tablet/mobile as required tiers. BREAKPOINTS UNDEFINED: artifact-contracts.md section 8 item 2 records 'Breakpoint values are undefined in every canonical document. The Rendered Result capture context names three viewports without defining their boundaries.' Phase 5 section 24 item 21 records 'Breakpoint values undefined — tablet, mobile and desktop are named as required compositions, but no canonical document states a breakpoint boundary. The viewport widths in section 21.3 (1440px, 768px, 390px) are inspection targets for QA, not breakpoints, and the source is explicit on that point.' Evidence may describe responsive strategy and confirm tier implementations however Implementation Engineer determines appropriate. Viewport widths 1440px/768px/390px are QA inspection targets, not breakpoint definitions. DO NOT invent breakpoint pixel values, media query ranges, or breakpoint enum schemes (sm/md/lg)."
+            }
+          },
+          "required": ["accessibility", "performance", "seo", "responsiveness"],
+          "additionalProperties": false,
+          "$comment": "FOUR CATEGORIES REQUIRED, INTERNAL STRUCTURE OPEN: artifact-contracts.md section 5.6 validation expectation states 'Implementation fidelity is judged by Phase 6. This report records implementation facts for that judgement; it does not pre-judge.' The contract names four evidence categories (accessibility, performance, SEO, responsiveness) but does not define internal field structure for any. Phase 5 (01-DOCUMENTATION/05-ai-implementation.md) provides checklists, test types, and inspection procedures as implementation guidance for the Implementation Engineer; these are NOT canonical artifact contract requirements. schema-architecture.md section 1 states 'A contract states what information [an artifact] must carry. A schema would state how that information is shaped. The two are not the same work.' Each category must be present; internal shape is determined by Implementation Engineer's validation approach and may evolve as validation practices mature. DO NOT invent thresholds, scores, pass/fail enums, or mandatory sub-field structures not stated in section 5.6."
+        },
+        "technologyChoices": {
+          "type": "object",
+          "description": "Technology and implementation choices that affect maintainability, per artifact-contracts.md section 5.6 sixth required information bullet.",
+          "$comment": "OPEN STRUCTURE - artifact-contracts.md section 5.6 requires recording 'Technology and implementation choices that affect maintainability' but does not specify structure. NO TECHNOLOGY STACK MANDATED: Phase 5 (01-DOCUMENTATION/05-ai-implementation.md) mentions Next.js, React, Tailwind, Supabase, TypeScript as illustrative examples throughout; section 3 states 'this document uses Next.js + React + Tailwind as concrete examples.' Phase 5 section 2.3 invariants state 'No item below is a MUST or MUST NOT unless the source itself uses normative language... The vast majority is guidance.' No canonical document requires specific frameworks, libraries, languages, databases, or hosting platforms. Implementation Engineer records whatever technology choices were made for this implementation, structured however appropriate to communicate decisions affecting maintainability. DO NOT hardcode nextJsVersion, reactVersion, tailwindVersion, supabaseConfig, typescriptVersion, or any other current technology stack fields unless a future canonical document explicitly requires them."
+        }
+      },
+      "required": ["assetsUsed", "declaredDeviations", "validationEvidence", "technologyChoices"],
+      "additionalProperties": false
+    }
+  ]
+}

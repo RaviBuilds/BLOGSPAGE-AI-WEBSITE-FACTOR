@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/final-report.schema.json",
+  "title": "Final Report",
+  "description": "Control Plane assembly artifact presenting the complete delivery case with final quality state. Per artifact-contracts.md section 5.9: assembles final implementation and rendered-result identity, critic verdict and outstanding findings, refinement history, and exact versions consumed. Produced by Control Plane; consumed by human approver at Gate 3 (quality-gates.md section 8, human-approval.md section 6). Evidence presented AT Gate 3, not a record OF Gate 3 decision. Does NOT contain human approval status, workflow state, duplicate critic metrics, duplicate implementation details, or duplicate artifact payloads.",
+  "$comment": "ASSEMBLY ARTIFACT — Section 5.9 purpose: Assemble the complete delivery case with final quality state. NOT an evaluation artifact (that is Critic Report), NOT a governance record (Gate 3 human approval is a state transition APPROVED to DELIVERED per state-machine.md, not artifact payload). IDENTITY VIA REFERENCES: Final implementation and rendered result are referenced via consumedArtifactVersions, not duplicated as separate version fields.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "FINAL_REPORT",
+          "$comment": "Pinned to FINAL_REPORT. This value exists in artifact-envelope.schema.json line 83 enum, verified 2026-09-01."
+        }
+      },
+      "required": [
+        "artifactType"
+      ]
+    },
+    {
+      "properties": {
+        "consumedArtifactVersions": {
+          "minItems": 1,
+          "$comment": "THREE MANDATORY ARTIFACT TYPES per section 5.9 bullets 1-2: Implementation Report, Rendered Result, Critic Report. REFINEMENT_PLAN is OPTIONAL. Section 5.9 bullet 4 satisfied by this array.",
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "artifactType": {
+                    "const": "IMPLEMENTATION_REPORT"
+                  }
+                },
+                "required": [
+                  "artifactType"
+                ]
+              },
+              "$comment": "IMPLEMENTATION_REPORT required per section 5.9 bullet 1."
+            },
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "artifactType": {
+                    "const": "RENDERED_RESULT"
+                  }
+                },
+                "required": [
+                  "artifactType"
+                ]
+              },
+              "$comment": "RENDERED_RESULT required per section 5.9 bullet 1."
+            },
+            {
+              "contains": {
+                "type": "object",
+                "properties": {
+                  "artifactType": {
+                    "const": "CRITIC_REPORT"
+                  }
+                },
+                "required": [
+                  "artifactType"
+                ]
+              },
+              "$comment": "CRITIC_REPORT required per section 5.9 bullet 2."
+            }
+          ]
+        }
+      },
+      "required": [
+        "consumedArtifactVersions"
+      ]
+    },
+    {
+      "properties": {
+        "finalCriticVerdict": {
+          "type": "string",
+          "enum": [
+            "SHIP",
+            "REFINE",
+            "REBUILD",
+            "RETURN_TO_PHASE_4"
+          ],
+          "description": "Final critic recommendation from the final Critic Report, per artifact-contracts.md section 5.9 bullet 2 'Critic verdict'. Vocabulary from failure-routing.md section 3.1. These are recommendations, not states.",
+          "$comment": "REQUIRED per section 5.9 bullet 2. NOT A WORKFLOW STATE: SHIP means critic recommends proceeding to Gate 3. Gate 3 human approval decision is separate and recorded as state transition APPROVED to DELIVERED, not in this artifact."
+        },
+        "outstandingFindings": {
+          "type": "array",
+          "description": "Findings from final Critic Report that remain unresolved but are accepted for delivery. Per section 5.9 validation expectation and quality-gates.md section 8.1 line 280. Required even if empty.",
+          "$comment": "REQUIRED per section 5.9. EMPTY ARRAY VALID: Not all deliveries have outstanding findings. OPEN INTERNAL STRUCTURE: No canonical finding reference format exists. Items are open objects.",
+          "items": {
+            "type": "object",
+            "description": "One outstanding finding accepted at delivery.",
+            "$comment": "OPEN STRUCTURE: No required properties enforced because no canonical shape exists."
+          }
+        },
+        "refinementHistory": {
+          "description": "Refinement history per section 5.9 bullet 3. Records criticism/refinement cycles using criticIteration as ordinal. Structure is open: may be summary object, array of cycle records, prose, or other format.",
+          "$comment": "REQUIRED per section 5.9 bullet 3. OPEN STRUCTURE: Section 5.9 does not specify detail level or format. NO TYPE CONSTRAINT. NO REQUIRED SUBFIELDS. Historical Critic Reports and Refinement Plans remain as SUPERSEDED artifacts per versioning.md section 6.2."
+        }
+      },
+      "required": [
+        "finalCriticVerdict",
+        "outstandingFindings",
+        "refinementHistory"
+      ],
+      "additionalProperties": false,
+      "$comment": "THREE REQUIRED PAYLOAD FIELDS per section 5.9. additionalProperties false is safe because all contract-required concepts enumerated. ACTUAL DELIVERED STATE is content accuracy requirement. NO HUMAN APPROVAL. NO WORKFLOW STATE. NO DUPLICATE METRICS. NO REGISTRY VERSIONS. NO OWNING PHASE REQUIREMENT. NO SEPARATE IMPLEMENTATION VERSION. NO FINDING ID FORMAT. NO INVENTED STATUS ENUM."
+    }
+  ]
+}

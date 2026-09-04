@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/brand-profile.schema.json",
+  "title": "Brand Profile",
+  "description": "Payload shape for the Brand Profile artifact, artifact-contracts.md section 5.4: 'Record observed brand reality as fact, separate from creative recommendation.' Produced by the Research Agent; consumed by the Creative Director. Per section 5.4, and per Factory Operating System section 0.4, the brand profile is stored outside the blueprint record because it holds facts, not decisions. Composed with the shared envelope (_common/artifact-envelope.schema.json), which carries artifactId, artifactType, projectId, artifactVersion, versionStatus, producer and the version-provenance fields. This document defines the payload only, per schema-architecture.md section 2. A schema is a shape, never a rule: it does not decide what happens when the shape is violated (schema-architecture.md section 5.1).",
+  "$comment": "Field set is exactly the section 5.4 'Required information' row: existing name usage and naming conventions; existing marks or logos where present; observed colour and typographic usage; observed tone of voice; existing brand inconsistencies. No field beyond that row is added. Every category is modelled as an array of the shared 'factualItem' definition below, which renders artifact-contracts.md section 2's six-column provenance table (fact, value, source, source type, confidence, verification status) exactly, per section 0.8 of the Factory Operating System. That rule applies to every factual item carried by any artifact, not only Business Research, and Brand Profile's required information is exactly such observed factual material. Confidence and source type have no defined scale or enumeration in any canonical document; both are left open rather than invented, and each carries a $comment recording the gap.",
+  "$comment_phase4Boundary": "No field for target aesthetics, design language selection, creative intensity, composition decisions, typography recommendations or any other creative decision is present. Section 5.4's validation expectation states plainly: 'Recommendations, aspirations, and target aesthetics are out of scope and belong to creative direction.' Those decisions are Phase 4's, per phase-ownership-matrix.md's phase boundaries; adding such a field here would leak Phase 4 authority into an observational artifact. Brand Profile records what is, not what should be.",
+  "$comment_absence": "Section 5.4's validation expectation states 'Absence of an existing brand is recorded as such.' No canonical document defines a dedicated boolean or enum field for that absence, so none is invented here. An absence is expected to be expressed the same way any other observation is: as a factualItem within the relevant category recording the absence itself (for example, a fact stating no existing logo was found), carrying whatever provenance and verificationStatus that observation actually has. An empty array on a category records that nothing was found there at all, which is distinct from a factualItem that positively records an absence.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "BRAND_PROFILE"
+        }
+      },
+      "$comment": "Pins the shared envelope's artifactType to this artifact's own member of the closed twelve-type set (artifact-contracts.md section 5; envelope definitions.artifactType). A subset restriction, not a new value: BRAND_PROFILE is already a member of that enum."
+    },
+    {
+      "type": "object",
+      "properties": {
+        "existingNameUsageAndNamingConventions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Existing name usage and naming conventions, per artifact-contracts.md section 5.4 'Required information'. Each item is a provenance-carrying factual claim, per section 2."
+        },
+        "existingMarksOrLogos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Existing marks or logos where present, per section 5.4. Section 5.4 itself qualifies this category as conditional on presence; where none exist, section 5.4's validation expectation requires that absence to be recorded as such, per the $comment_absence note above."
+        },
+        "observedColourAndTypographicUsage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Observed colour and typographic usage, per section 5.4. Observation only: this records what is currently in use, not a target palette or type system, which belongs to creative direction per the validation expectation."
+        },
+        "observedToneOfVoice": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Observed tone of voice, per section 5.4."
+        },
+        "existingBrandInconsistencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/factualItem"
+          },
+          "description": "Existing brand inconsistencies, per section 5.4."
+        }
+      },
+      "required": [
+        "existingNameUsageAndNamingConventions",
+        "existingMarksOrLogos",
+        "observedColourAndTypographicUsage",
+        "observedToneOfVoice",
+        "existingBrandInconsistencies"
+      ],
+      "$comment_required": "All five are named by section 5.4's 'Required information' row, and artifact-contracts.md section 1 rule 4 states an artifact is either complete or incomplete and partial artifacts do not pass gates. An empty array is a valid way to record that a category yielded no observations at all, most directly for existingMarksOrLogos, which section 5.4 itself qualifies as 'where present'.",
+      "$comment_additionalProperties": "additionalProperties is deliberately not set to false. No canonical document states that the Brand Profile payload is closed to exactly these five categories, and closing it here would assert a rule the contract does not state."
+    }
+  ],
+  "definitions": {
+    "factualItem": {
+      "type": "object",
+      "properties": {
+        "fact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The claim itself, per artifact-contracts.md section 2 / Factory Operating System section 0.8. Example given there: \"Google rating\"."
+        },
+        "value": {
+          "description": "The stated value, per section 2. Left untyped: section 0.8's own example ('\"value\": \"4.8\"') renders a numeric-looking rating as a JSON string, and no canonical document fixes a type for this column.",
+          "$comment": "SHAPE UNRESOLVED - no canonical document restricts this column to a JSON type. Deliberately left as an unconstrained schema so string, number and boolean values are all representable without inventing a restriction."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where it came from, per section 2. Example given there: \"Google Business Profile\"."
+        },
+        "sourceType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The kind of source, per section 2's 'Source type' column.",
+          "$comment": "GAP - no canonical document enumerates a closed set of source types. Typed as a free string rather than an enum to avoid inventing one."
+        },
+        "confidence": {
+          "description": "Strength of support, per section 2's 'Confidence' column.",
+          "$comment": "GAP - no canonical document defines a confidence scale (no levels, no numeric range, no labels). Left as an unconstrained schema rather than an invented scale."
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": [
+            "verified",
+            "inferred",
+            "unknown"
+          ],
+          "description": "Verified, inferred, or unknown, per artifact-contracts.md section 2's 'Verification status' column, which states exactly this three-member set. The Factory Operating System section 0.8 example spells this column's key as 'status'; renamed to 'verificationStatus' here to disambiguate from the envelope's versionStatus and from asset status (section 3), which are separate vocabularies for separate concerns."
+        }
+      },
+      "required": [
+        "fact",
+        "value",
+        "source",
+        "sourceType",
+        "confidence",
+        "verificationStatus"
+      ],
+      "$comment": "Renders artifact-contracts.md section 2 exactly: 'Per section 0.8, every factual item carried by any artifact records:' followed by these six elements. 'A factual item without provenance is treated as unknown, regardless of plausibility' is a runtime consequence of a missing or incomplete record, per that section, and is not itself a shape; this schema does not encode that consequence, only the six-element record."
+    }
+  }
+}

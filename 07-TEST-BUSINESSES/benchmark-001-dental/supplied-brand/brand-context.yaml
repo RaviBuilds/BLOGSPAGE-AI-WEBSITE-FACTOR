@@ -1,0 +1,128 @@
+---
+# BRAND CONTEXT — MERIDIAN DENTAL STUDIO
+# EXISTING BRAND MATERIALS (SUPPLIED)
+---
+
+sourceNote: >
+  This represents the EXISTING brand context for the fictional Meridian Dental Studio.
+  This is what the business currently has—not what the factory will create. The factory
+  observes these existing brand materials and decides how to evolve them.
+
+existingBrand:
+  maturity: MODERATE
+  maturityDescription: >
+    Established business (10 years) with basic brand identity. Logo and primary color 
+    are established and recognized locally. Visual style is functional but dated. No 
+    comprehensive brand guidelines exist. Seeking premium digital presence that elevates 
+    brand sophistication while preserving core identity elements.
+  
+  logo:
+    exists: true
+    file: ./logo.svg
+    description: "Simple, clean dental mark with practice name"
+    style: "Professional, geometric, minimalist"
+    colors: "Blue and white"
+    usage: "Must be retained for brand continuity"
+    constraint: "Logo preservation required (business constraint)"
+  
+  colorPalette:
+    primary:
+      color: "#2563EB"
+      name: "Trust Blue"
+      usage: "Primary brand color, established and recognized"
+      constraint: "Should be preserved or evolved, not replaced"
+    
+    secondary:
+      defined: false
+      note: "No established secondary color. Factory may develop supporting palette."
+    
+    neutral:
+      defined: false
+      note: "No defined neutral palette. Factory determines based on design language."
+  
+  typography:
+    defined: false
+    currentUsage: "Generic sans-serif fonts (Arial, Helvetica)"
+    note: >
+      No specific typography system established. Current materials use default system 
+      fonts. Factory selects appropriate typography based on design language and brand 
+      personality.
+  
+  toneOfVoice:
+    defined: true
+    characteristics:
+      - "Professional but approachable"
+      - "Warm and reassuring"
+      - "Confident without being clinical"
+      - "Educational without being condescending"
+      - "Honest and transparent"
+    
+    examples:
+      avoid: "Revolutionary! Transform your smile overnight!"
+      prefer: "We combine advanced techniques with genuine care to create smiles that look naturally yours."
+    
+    note: >
+      This tone has been consistent across patient communications and has resonated well 
+      with the target audience. Should be preserved in digital presence.
+  
+  visualStyle:
+    currentState: "Basic, functional, slightly dated"
+    description: >
+      Current marketing materials use clean layouts with ample whitespace, professional 
+      photography, and straightforward information hierarchy. Style is conservative and 
+      medical-professional rather than design-forward. Effective but not distinctive.
+    
+    strengths:
+      - "Clean, uncluttered layouts"
+      - "Professional photography"
+      - "Clear information hierarchy"
+    
+    limitations:
+      - "Lacks visual sophistication"
+      - "Not distinctive compared to competitors"
+      - "Doesn't communicate premium positioning"
+    
+    evolutionGoal: >
+      Elevate visual sophistication to match the quality of clinical care and premium 
+      market positioning. The website should feel modern, confident, and refined while 
+      maintaining the approachable warmth that existing patients appreciate.
+  
+  existingDigitalPresence:
+    website:
+      exists: true
+      url: "http://www.meridiandental.test"
+      note: "Fictional URL for test purposes only"
+      description: "Basic informational website, functional but outdated (built 2017)"
+      limitations:
+        - "Not mobile-optimized"
+        - "Limited photography"
+        - "No online booking integration"
+        - "Generic template design"
+      retentionValue: "Content only—design should be replaced"
+    
+    socialMedia:
+      active: true
+      platforms: ["Facebook", "Instagram"]
+      note: "Fictional social media presence"
+  
+  brandGuidelines:
+    exist: false
+    note: >
+      No formal brand guidelines document exists. Logo usage and color have been 
+      consistent through habit rather than documented rules.
+
+competitiveContext:
+  positioning: "Premium local dental practice (not luxury, not budget)"
+  differentiators:
+    - "Extended appointment times for unhurried care"
+    - "Digital smile design technology"
+    - "Team of specialists rather than single practitioner"
+    - "Sedation dentistry for anxious patients"
+    - "Two convenient locations"
+
+# Factory observes existing brand, decides how to evolve
+# This document does NOT make creative decisions
+
+---
+# END BRAND CONTEXT
+

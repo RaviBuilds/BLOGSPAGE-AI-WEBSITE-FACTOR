@@ -1,0 +1,326 @@
+---
+# ASSET MANIFEST — MERIDIAN DENTAL STUDIO
+# SYNTHETIC TEST FIXTURE ASSET INVENTORY
+---
+
+sourceNote: >
+  This manifest documents all assets for the SYNTHETIC_TEST benchmark.
+  Stock images are REFERENCE/PLACEHOLDER assets sourced from free stock photography
+  services. Stock people and locations do NOT represent actual employees, patients,
+  or clinic locations of the fictional Meridian Dental Studio.
+
+assetInventory:
+  totalAssets: 18
+  categories:
+    logo: 1
+    teamPortraits: 3
+    clinicEnvironment: 4
+    serviceImagery: 6
+    heroWide: 2
+    detailCloseup: 2
+
+# =============================================================================
+# LOGO
+# =============================================================================
+
+logo:
+  - id: logo-01
+    file: ../supplied-brand/logo.svg
+    assetType: LOGO
+    format: SVG
+    sourceType: CREATED_FOR_BENCHMARK
+    description: "Fictional Meridian Dental Studio brand mark"
+    usage: "Primary logo for all brand applications"
+    suitability: HIGH
+    businessOwned: true
+    note: "Simple fictional logo created for synthetic test business"
+
+# =============================================================================
+# TEAM PORTRAITS
+# =============================================================================
+
+teamPortraits:
+  - id: team-01
+    represents: "Dr. Sarah Mitchell (FICTIONAL)"
+    assetType: TEAM_PORTRAIT
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    photographer: "Professional portrait collection"
+    license: "Unsplash License (free to use)"
+    searchTerms: "professional woman dentist portrait"
+    description: "Professional headshot, neutral background, medical professional appearance"
+    aspectRatio: "3:4 portrait"
+    suitability: HIGH
+    note: >
+      STOCK IMAGE REFERENCE. This person is NOT Dr. Sarah Mitchell (fictional character).
+      This is a stock photograph representing a professional portrait style suitable for
+      the fictional team member. Asset Intelligence should evaluate suitability for
+      professional team section use.
+
+  - id: team-02
+    represents: "Dr. James Chen (FICTIONAL)"
+    assetType: TEAM_PORTRAIT
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    photographer: "Professional portrait collection"
+    license: "Unsplash License (free to use)"
+    searchTerms: "asian male dentist professional portrait"
+    description: "Professional headshot, neutral background, confident friendly expression"
+    aspectRatio: "3:4 portrait"
+    suitability: HIGH
+    note: >
+      STOCK IMAGE REFERENCE. This person is NOT Dr. James Chen (fictional character).
+      Stock photograph representing professional portrait style.
+
+  - id: team-03
+    represents: "Dr. Emily Rodriguez (FICTIONAL)"
+    assetType: TEAM_PORTRAIT
+    sourceType: STOCK_REFERENCE
+    source: "Pexels"
+    photographer: "Professional portrait collection"
+    license: "Pexels License (free to use)"
+    searchTerms: "latina female dentist professional portrait"
+    description: "Professional headshot, slightly lower resolution than other team portraits"
+    aspectRatio: "3:4 portrait"
+    suitability: MODERATE
+    qualityNote: >
+      CONTROLLED IMPERFECTION: This asset is marked as adequate but not ideal quality
+      compared to team-01 and team-02. Tests Asset Intelligence suitability judgment
+      (IMPERFECTION_05). Still usable but may trigger recommendation for higher quality
+      replacement.
+    note: >
+      STOCK IMAGE REFERENCE. This person is NOT Dr. Emily Rodriguez (fictional character).
+
+# =============================================================================
+# CLINIC ENVIRONMENT
+# =============================================================================
+
+clinicEnvironment:
+  - id: env-01
+    name: "Modern Dental Reception"
+    assetType: ENVIRONMENT
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "modern dental clinic reception waiting room"
+    description: "Clean, modern reception area with comfortable seating, natural light"
+    aspectRatio: "16:9 landscape"
+    suitability: HIGH
+    usage: "Harbor District clinic environment representation"
+    note: >
+      STOCK IMAGE. Not an actual Meridian Dental Studio location (fictional business).
+
+  - id: env-02
+    name: "Dental Treatment Room"
+    assetType: ENVIRONMENT
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "modern dental operatory treatment room equipment"
+    description: "Contemporary treatment room with dental chair, overhead lighting, equipment"
+    aspectRatio: "16:9 landscape"
+    suitability: HIGH
+    usage: "Treatment room environment"
+    note: "STOCK IMAGE. Not actual clinic location."
+
+  - id: env-03
+    name: "Clinic Exterior"
+    assetType: ENVIRONMENT
+    sourceType: STOCK_REFERENCE
+    source: "Pexels"
+    license: "Pexels License"
+    searchTerms: "modern medical office building exterior"
+    description: "Professional office building exterior, daytime"
+    aspectRatio: "16:9 landscape"
+    suitability: MODERATE
+    usage: "Location exterior representation"
+    note: "STOCK IMAGE. Not actual clinic location."
+
+  - id: env-04
+    name: "Dental Technology Detail"
+    assetType: ENVIRONMENT
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "dental technology digital scanner equipment"
+    description: "Close-up of modern dental technology, intraoral scanner or digital equipment"
+    aspectRatio: "4:3"
+    suitability: HIGH
+    usage: "Technology/capability showcase"
+    note: "STOCK IMAGE representing dental technology."
+
+# =============================================================================
+# SERVICE IMAGERY
+# =============================================================================
+
+serviceImagery:
+  - id: service-01
+    name: "Veneer Consultation"
+    assetType: SERVICE
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "dentist consultation smile design patient"
+    description: "Dentist showing smile design to patient, consultation setting"
+    aspectRatio: "4:3"
+    suitability: HIGH
+    relatedService: "Porcelain Veneers"
+    note: "STOCK IMAGE. Not actual Meridian patients or doctors."
+
+  - id: service-02
+    name: "Smile Transformation"
+    assetType: SERVICE
+    sourceType: STOCK_REFERENCE
+    source: "Pexels"
+    license: "Pexels License"
+    searchTerms: "beautiful smile close up white teeth"
+    description: "Close-up of natural-looking smile, illustrative outcome"
+    aspectRatio: "16:9 landscape"
+    suitability: HIGH
+    relatedService: "Cosmetic Dentistry"
+    note: "STOCK IMAGE. Illustrative smile outcome, not actual patient result."
+
+  - id: service-03
+    name: "Whitening Treatment"
+    assetType: SERVICE
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "teeth whitening LED light treatment"
+    description: "Professional whitening treatment in progress"
+    aspectRatio: "3:4 portrait"
+    suitability: MODERATE
+    relatedService: "Teeth Whitening"
+    note: "STOCK IMAGE representing whitening procedure."
+
+  - id: service-04
+    name: "Dental Implant Concept"
+    assetType: SERVICE
+    sourceType: STOCK_REFERENCE
+    source: "Pexels"
+    license: "Pexels License"
+    searchTerms: "dental implant model diagram"
+    description: "Dental implant model showing structure"
+    aspectRatio: "1:1 square"
+    suitability: HIGH
+    relatedService: "Dental Implants"
+    note: "STOCK IMAGE. Educational implant imagery."
+
+  - id: service-05
+    name: "Family Dental Care"
+    assetType: SERVICE
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "child dentist examination gentle care"
+    description: "Gentle pediatric examination, family dentistry"
+    aspectRatio: "16:9 landscape"
+    suitability: HIGH
+    relatedService: "General Dentistry"
+    note: "STOCK IMAGE. Not actual patients."
+
+  - id: service-06
+    name: "Comfortable Patient Experience"
+    assetType: SERVICE
+    sourceType: STOCK_REFERENCE
+    source: "Pexels"
+    license: "Pexels License"
+    searchTerms: "relaxed dental patient comfortable"
+    description: "Patient relaxed in chair, comfort emphasis"
+    aspectRatio: "4:3"
+    suitability: MODERATE
+    relatedService: "Sedation Dentistry"
+
+# =============================================================================
+# HERO / WIDE ATMOSPHERIC
+# =============================================================================
+
+heroWide:
+  - id: hero-01
+    name: "Modern Dental Studio Wide"
+    assetType: HERO
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "modern dental clinic interior wide angle bright"
+    description: "Wide-angle contemporary clinic, bright natural light, premium feel"
+    aspectRatio: "21:9 ultrawide"
+    suitability: HIGH
+    usage: "Hero section, primary visual moment"
+    cinematicPotential: HIGH
+    note: "STOCK IMAGE. Cinematic-capable wide shot."
+
+  - id: hero-02
+    name: "Patient Smile Close Wide"
+    assetType: HERO
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "genuine smile close up natural confident"
+    description: "Authentic smile, wide composition, positive emotional tone"
+    aspectRatio: "16:9 landscape"
+    suitability: HIGH
+    usage: "Alternative hero or outcomes section"
+    cinematicPotential: MODERATE
+    note: "STOCK IMAGE. Genuine smile representation."
+
+# =============================================================================
+# DETAIL / CLOSE-UP
+# =============================================================================
+
+detailCloseup:
+  - id: detail-01
+    name: "Precision Dental Work"
+    assetType: DETAIL
+    sourceType: STOCK_REFERENCE
+    source: "Pexels"
+    license: "Pexels License"
+    searchTerms: "dental tools precision close up instruments"
+    description: "Close-up dental instruments, precision emphasis"
+    aspectRatio: "4:5 portrait"
+    suitability: HIGH
+    usage: "Detail moment, craftsmanship"
+    note: "STOCK IMAGE. Precision representation."
+
+  - id: detail-02
+    name: "Dental Technology Interface"
+    assetType: DETAIL
+    sourceType: STOCK_REFERENCE
+    source: "Unsplash"
+    license: "Unsplash License"
+    searchTerms: "digital dental technology screen interface"
+    description: "Digital interface, modern technology close-up"
+    aspectRatio: "3:4 portrait"
+    suitability: MODERATE
+    usage: "Technology detail"
+    note: "STOCK IMAGE. Technology detail."
+
+# =============================================================================
+# SOURCING NOTES
+# =============================================================================
+
+sourcingNotes:
+  implementation: >
+    For pilot execution, download specific stock images from Unsplash and Pexels
+    using search terms provided. Select images matching descriptions and aspect ratios.
+  
+  licensing: >
+    Both services offer free-to-use licenses. Verify current terms at download.
+    All images marked as stock/reference in Asset Intelligence processing.
+  
+  quality: >
+    Minimum 1920px on longest dimension for hero/wide, 1200px for portraits/details.
+    Professional quality, good lighting, contemporary aesthetic.
+  
+  stockPeople: >
+    All people in stock images are professional models. They do NOT represent
+    actual Meridian team members or patients. Asset Intelligence must note this.
+
+controlledImperfections:
+  team03:
+    asset: team-03
+    imperfection: IMPERFECTION_05
+    note: "Lower quality tests suitability judgment"
+
+---
+# END ASSET MANIFEST

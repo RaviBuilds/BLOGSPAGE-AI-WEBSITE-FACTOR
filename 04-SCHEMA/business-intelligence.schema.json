@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://blogspage.factory/04-SCHEMA/business-intelligence.schema.json",
+  "title": "Business Intelligence",
+  "description": "Payload shape for the Business Intelligence artifact, artifact-contracts.md section 5.2: 'Convert research into a structured, truth-classified package usable for creative decisions.' This is the artifact referred to elsewhere as the Business Intelligence Package (section 5.2's own note). Produced by the Research Agent; consumed by the Creative Director. Composed with the shared envelope (_common/artifact-envelope.schema.json), which carries artifactId, artifactType, projectId, artifactVersion, versionStatus, producer and the version-provenance fields. This document defines the payload only, per schema-architecture.md section 2. A schema is a shape, never a rule: it does not decide what happens when the shape is violated (schema-architecture.md section 5.1).",
+  "$comment": "Field set is the five substantive categories of section 5.2's 'Required information' row: audience understanding; service structure; positioning signals; SEO-relevant business context; constraints imposed by content or asset reality. The row's other three items - 'verified facts; inferred traits, labelled as inferred; unknowns, named explicitly' - are not a sixth through eighth content category alongside those five. Read together with the section 5.2 validation expectation ('Every item classified as verified, inferred, or unknown, per section 4.3') and section 4.3's Business Truth Layer ('the AI establishes' this three-way classification 'of everything known about the business'), they describe a classification that attaches to every item within the five categories, not a separate bucket of content. This mirrors exactly how artifact-contracts.md section 2's provenance table already carries a per-item verification-status column for every factual item in every artifact; Business Intelligence's distinguishing feature is that this classification is load-bearing (section 5.2's validation expectation turns on it) rather than incidental. No field beyond the five categories is added.",
+  "$comment_structureUnreconciled": "artifact-contracts.md section 8 item 4 and schema-architecture.md section 6's gap table both record that 'the Business Intelligence Package's internal structure is unreconciled against the research file layout' - there are two candidate structures and no reconciliation. One candidate is the nine-file package named by 04-ai-creative-direction.md section 4 (business.json, brand.json, audience.json, services.json, reviews.json, assets.json, seo.json, competitors.json, research.md), which that same section states gives filenames only - 'no field list, no schema, no required/optional marking' - and whose mapping to the constructs of Phase 4 sections 5-15 is explicitly not stated. This schema does not adopt the nine-file layout: doing so would assert a reconciliation the canon does not make, and section 4's own text confirms there is nothing beyond filenames to type. The five-category structure below is drawn directly from artifact-contracts.md section 5.2's 'Required information' row instead, matching how business-research.schema.json and brand-profile.schema.json are each drawn from their own contract's 'Required information' row. artifact-contracts.md section 5.2's closing clause - the package 'satisfies the Phase 4 input contract, per section 4.2' - is therefore recorded as unresolved rather than enforced: section 4.2 is the nine-file package just described, and a shape cannot be required to satisfy a contract that itself has no field-level content.",
+  "$comment_phase4Boundary": "No field for design language selection, creative intensity, visual tension, content density, motion parameters, brand maturity, creative budget, competitor sameness, or any other Phase 4 strategy or scoring construct is present. Business Intelligence is Research Agent output consumed by the Creative Director as input; per phase-ownership-matrix.md those constructs are Phase 2/Phase 4-owned and arise only once Phase 4 acts on this package. Adding any of them here would leak Phase 4 authority into a research-produced artifact.",
+  "allOf": [
+    {
+      "$ref": "./_common/artifact-envelope.schema.json"
+    },
+    {
+      "properties": {
+        "artifactType": {
+          "const": "BUSINESS_INTELLIGENCE"
+        }
+      },
+      "$comment": "Pins the shared envelope's artifactType to this artifact's own member of the closed twelve-type set (artifact-contracts.md section 5.2; envelope definitions.artifactType). A subset restriction, not a new value: BUSINESS_INTELLIGENCE is already a member of that enum."
+    },
+    {
+      "type": "object",
+      "properties": {
+        "audienceUnderstanding": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/truthClassifiedItem"
+          },
+          "description": "Audience understanding, per artifact-contracts.md section 5.2 'Required information'. Each item carries the truth classification described in this schema's top-level $comment."
+        },
+        "serviceStructure": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/truthClassifiedItem"
+          },
+          "description": "Service structure, per section 5.2."
+        },
+        "positioningSignals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/truthClassifiedItem"
+          },
+          "description": "Positioning signals, per section 5.2."
+        },
+        "seoRelevantBusinessContext": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/truthClassifiedItem"
+          },
+          "description": "SEO-relevant business context, per section 5.2."
+        },
+        "constraintsFromContentOrAssetReality": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/truthClassifiedItem"
+          },
+          "description": "Constraints imposed by content or asset reality, per section 5.2."
+        }
+      },
+      "required": [
+        "audienceUnderstanding",
+        "serviceStructure",
+        "positioningSignals",
+        "seoRelevantBusinessContext",
+        "constraintsFromContentOrAssetReality"
+      ],
+      "$comment_required": "All five are named by section 5.2's 'Required information' row, per the reading recorded in this schema's top-level $comment. artifact-contracts.md section 1 rule 4 states an artifact is either complete or incomplete and partial artifacts do not pass gates. An empty array is a valid way to record that a category yielded nothing; per rule 5, a category with nothing found is expected to surface through an item classified unknown within that category, rather than through an omitted field.",
+      "$comment_additionalProperties": "additionalProperties is deliberately not set to false. No canonical document states that the Business Intelligence payload is closed to exactly these five categories, and closing it here would assert a rule the contract does not state."
+    }
+  ],
+  "definitions": {
+    "truthClassifiedItem": {
+      "type": "object",
+      "properties": {
+        "fact": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The claim itself, per artifact-contracts.md section 2 / Factory Operating System section 0.8. Example given there: \"Google rating\"."
+        },
+        "value": {
+          "description": "The stated value, per section 2. Left untyped: section 0.8's own example ('\"value\": \"4.8\"') renders a numeric-looking rating as a JSON string, and no canonical document fixes a type for this column.",
+          "$comment": "SHAPE UNRESOLVED - no canonical document restricts this column to a JSON type. Deliberately left as an unconstrained schema so string, number and boolean values are all representable without inventing a restriction."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where it came from, per section 2. Example given there: \"Google Business Profile\"."
+        },
+        "sourceType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The kind of source, per section 2's 'Source type' column.",
+          "$comment": "GAP - no canonical document enumerates a closed set of source types. Typed as a free string rather than an enum to avoid inventing one."
+        },
+        "confidence": {
+          "description": "Strength of support, per section 2's 'Confidence' column.",
+          "$comment": "GAP - no canonical document defines a confidence scale (no levels, no numeric range, no labels). Left as an unconstrained schema rather than an invented scale."
+        },
+        "verificationStatus": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The truth classification of this item, per artifact-contracts.md section 5.2's validation expectation ('Every item classified as verified, inferred, or unknown, per section 4.3') and 04-ai-creative-direction.md section 5's Business Truth Layer (VERIFIED, INFERRED, UNKNOWN)."
+        }
+      },
+      "required": [
+        "fact",
+        "value",
+        "source",
+        "sourceType",
+        "confidence",
+        "verificationStatus"
+      ],
+      "$comment": "Renders artifact-contracts.md section 2's six-element provenance record, per section 0.8, with the sixth element specialised for this artifact. Elsewhere (business-research.schema.json, brand-profile.schema.json) the sixth element is named 'verificationStatus' and enumerated to exactly {verified, inferred, unknown}, because artifact-contracts.md section 2 states that three-member set directly for the generic provenance column. Business Intelligence cannot reuse that enumeration as-is. schema-architecture.md section 6 records, as one of the payload gaps: 04-ai-creative-direction.md section 36.2's illustrative field examples emit 'uncertain' alongside 'unknown' for this exact package, and that document's own section 5 analysis states 'uncertain' maps to no truth-layer class - it may be INFERRED, it may be a low-confidence VERIFIED, or it may be a fourth state, and the source does not say which. schema-architecture.md section 6 states the consequence in an imperative: 'a schema MUST NOT enumerate the truth classification at all - typing it as three states silently discards uncertain, and typing it as four states invents a canonical class.' verificationStatus is therefore typed here as a non-empty free string, not an enum, and this is a deliberate narrower constraint than the sibling schemas' factualItem, not an inconsistency with them: the two artifacts face different states of canon on the same-named column. The relationship between 'uncertain' and {VERIFIED, INFERRED, UNKNOWN} is unresolved and must be decided by 04-ai-creative-direction.md or a successor to artifact-contracts.md section 5.2 before this field can be safely enumerated."
+    }
+  }
+}
