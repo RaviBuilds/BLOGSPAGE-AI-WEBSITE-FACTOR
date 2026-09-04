@@ -378,3 +378,117 @@ describe('crash/orphan reconciliation (HIGH-2)', () => {
     expect(adopted.artifactId).toBe('art-br-2');
   });
 });
+
+describe('durable commit + content-integrity chain (M2.3-A BLOCKER-3 / BLOCKER-2)', () => {
+  const testWorkspace = path.join(__dirname, 'test-workspace-recovery-durable');
+  const projectId = 'proj-1';
+  let store: ArtifactStore;
+  let manifestManager: ManifestManager;
+  let repo: ArtifactRepository;
+
+  const researchDoc = {
+    artifactId: 'art-br-1',
+    producer: 'RESEARCH_AGENT',
+    businessIdentityAndLocation: [],
+    servicesOrOfferings: [],
+    contactAndOperatingDetails: [],
+    publicReputationSignals: [],
+    discoveredAssets: [],
+    competitorObservations: [],
+    sourceList: [],
+    explicitGaps: []
+  };
+
+  beforeEach(() => {
+    store = new ArtifactStore(testWorkspace);
+    manifestManager = new ManifestManager(testWorkspace);
+    repo = new ArtifactRepository(testWorkspace);
+  });
+
+  afterEach(async () => {
+    await fs.rm(testWorkspace, { recursive: true, force: true });
+  });
+
+  test('D: a normal save durably commits artifact-then-manifest and records a matching content digest', async () => {
+    await repo.saveArtifact(projectId, ArtifactType.BUSINESS_RESEARCH, researchDoc);
+
+    // The manifest entry carries the SHA-256 of the exact committed bytes.
+    const manifest = await manifestManager.read(projectId);
+    const entry = manifest.artifacts[ArtifactType.BUSINESS_RESEARCH]!.versions[0];
+    expect(entry.contentSha256).toBeDefined();
+    expect(entry.contentSha256).toBe(
+      await store.getVersionDigest(projectId, ArtifactType.BUSINESS_RESEARCH, 1)
+    );
+
+    // The read path validates clean: manifest membership, parse, schema,
+    // envelope identity AND digest all hold.
+    const integrity = await repo.validateCurrentArtifact(
+      projectId,
+      ArtifactType.BUSINESS_RESEARCH
+    );
+    expect(integrity.valid).toBe(true);
+    expect(integrity.document).toBeDefined();
+  });
+
+  test('a post-commit tamper fails validateCurrentArtifact closed with a digest mismatch', async () => {
+    await repo.saveArtifact(projectId, ArtifactType.BUSINESS_RESEARCH, researchDoc);
+
+    // Modify the persisted bytes after the commit (manifest untouched).
+    const filePath = store.getArtifactVersionPath(projectId, ArtifactType.BUSINESS_RESEARCH, 1);
+    const onDisk = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+    onDisk.explicitGaps.push({ fact: 'injected', value: 'x' });
+    await fs.writeFile(filePath, JSON.stringify(onDisk, null, 2), 'utf-8');
+
+    const integrity = await repo.validateCurrentArtifact(
+      projectId,
+      ArtifactType.BUSINESS_RESEARCH
+    );
+    expect(integrity.valid).toBe(false);
+    expect(integrity.reason).toMatch(/digest mismatch/i);
+  });
+
+  test('legacy manifest entries without a digest skip verification instead of failing', async () => {
+    await repo.saveArtifact(projectId, ArtifactType.BUSINESS_RESEARCH, researchDoc);
+
+    // Simulate a manifest written before the contentSha256 field existed.
+    const manifest = await manifestManager.read(projectId);
+    delete manifest.artifacts[ArtifactType.BUSINESS_RESEARCH]!.versions[0].contentSha256;
+    await manifestManager.write(projectId, manifest);
+
+    const integrity = await repo.validateCurrentArtifact(
+      projectId,
+      ArtifactType.BUSINESS_RESEARCH
+    );
+    expect(integrity.valid).toBe(true);
+  });
+
+  test('orphan adoption records a digest so post-adoption tampering is detectable', async () => {
+    await repo.saveArtifact(projectId, ArtifactType.BUSINESS_RESEARCH, researchDoc);
+
+    // Crash between version-file write and manifest write.
+    await store.writeVersion(projectId, ArtifactType.BUSINESS_RESEARCH, 2, {
+      ...researchDoc,
+      artifactId: 'art-br-2',
+      artifactType: 'BUSINESS_RESEARCH',
+      projectId,
+      artifactVersion: 2,
+      versionStatus: 'CURRENT'
+    });
+
+    // "Restart": reconciliation adopts the orphan.
+    const restarted = new ArtifactRepository(testWorkspace);
+    await restarted.saveArtifact(projectId, ArtifactType.BUSINESS_RESEARCH, {
+      ...researchDoc,
+      artifactId: 'art-br-3'
+    });
+
+    const manifest = await manifestManager.read(projectId);
+    const adopted = manifest.artifacts[ArtifactType.BUSINESS_RESEARCH]!.versions.find(
+      v => v.version === 2
+    )!;
+    expect(adopted.contentSha256).toBeDefined();
+    expect(adopted.contentSha256).toBe(
+      await store.getVersionDigest(projectId, ArtifactType.BUSINESS_RESEARCH, 2)
+    );
+  });
+});
