@@ -10,6 +10,7 @@ import {
 } from './ArtifactTypes';
 import { assertPathInsideWorkspace, validateProjectId } from './validateProjectId';
 import { ManifestIntegrityError } from './ManifestIntegrityError';
+import { durableWrite } from './durableWrite';
 
 /**
  * Matches the stale temporary files both persistence writers leave behind
@@ -264,11 +265,19 @@ export class ManifestManager {
 
     await fs.promises.mkdir(dir, { recursive: true });
 
-    const tempPath = `${manifestPath}.tmp-${process.pid}-${Date.now()}`;
     const content = JSON.stringify(manifest, null, 2);
 
-    await fs.promises.writeFile(tempPath, content, 'utf-8');
-    await fs.promises.rename(tempPath, manifestPath);
+    // Durable atomic commit (M2.3-A BLOCKER-3): write temp, fsync the file,
+    // close, rename, best-effort directory-metadata sync. This avoids
+    // leaving a half-written manifest.json on a process crash, and — the
+    // part the previous temp+rename path did not provide — makes the bytes
+    // durable across power loss, so a manifest commit cannot survive while
+    // the artifact bytes it references were lost. The repository's
+    // artifact-first → manifest commit ordering is preserved: an artifact
+    // version is always durably committed BEFORE the manifest that
+    // references it. No cross-module transaction is created here (M2.4
+    // territory).
+    await durableWrite(manifestPath, content, 'utf-8');
 
     logger.debug('Manifest written', {
       component: 'ManifestManager',

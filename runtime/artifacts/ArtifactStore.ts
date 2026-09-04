@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from '../logging/Logger';
 import { ArtifactDocument, ArtifactType } from './ArtifactTypes';
+import { durableWrite } from './durableWrite';
 import {
   assertPathInsideWorkspace,
   validateArtifactVersion,
@@ -123,12 +124,12 @@ export class ArtifactStore {
 
     const content = JSON.stringify(document, null, 2);
 
-    // Write to a temp file then rename, so a crash mid-write never leaves a
-    // partially-written version file that a later read would parse as
-    // corrupt or incomplete JSON.
-    const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
-    await fs.promises.writeFile(tempPath, content, 'utf-8');
-    await fs.promises.rename(tempPath, filePath);
+    // Durable atomic commit (M2.3-A BLOCKER-3): write temp, fsync the file,
+    // close, rename, best-effort directory-metadata sync. A crash mid-write
+    // never leaves a partially-written version file that a later read would
+    // parse as corrupt or incomplete JSON, and a power loss after the commit
+    // can no longer lose the bytes to the page cache.
+    await durableWrite(filePath, content, 'utf-8');
 
     logger.info('Artifact version written', {
       component: 'ArtifactStore',
