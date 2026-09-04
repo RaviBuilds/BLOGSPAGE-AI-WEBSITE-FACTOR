@@ -304,7 +304,8 @@ export class ManifestManager {
     manifest: ProjectManifest,
     artifactType: ArtifactType,
     artifactId: string,
-    version: number
+    version: number,
+    contentSha256?: string
   ): ProjectManifest {
     const existing: ManifestTypeState = manifest.artifacts[artifactType] ?? {
       currentVersion: null,
@@ -319,7 +320,8 @@ export class ManifestManager {
       version,
       status: VersionStatus.CURRENT,
       artifactId,
-      writtenAt: new Date().toISOString()
+      writtenAt: new Date().toISOString(),
+      ...(contentSha256 !== undefined ? { contentSha256 } : {})
     };
 
     updatedVersions.push(newEntry);
@@ -356,7 +358,8 @@ export class ManifestManager {
     artifactType: ArtifactType,
     artifactId: string,
     version: number,
-    writtenAt: string
+    writtenAt: string,
+    contentSha256?: string
   ): ProjectManifest {
     const existing: ManifestTypeState = manifest.artifacts[artifactType] ?? {
       currentVersion: null,
@@ -377,7 +380,8 @@ export class ManifestManager {
       version,
       status: adoptedStatus,
       artifactId,
-      writtenAt
+      writtenAt,
+      ...(contentSha256 !== undefined ? { contentSha256 } : {})
     });
 
     return {

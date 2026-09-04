@@ -102,6 +102,93 @@ describe('ProductionValidationContext', () => {
   });
 
   // ------------------------------------------------------------------------
+  // M2.3-A BLOCKER-2 regression: both critic conditions must trust payload
+  // content ONLY after full current-artifact integrity is re-established
+  // (manifest membership, JSON parse, schema validation, envelope identity,
+  // and the commit-time content digest). A file tampered on disk after its
+  // commit — with the manifest untouched — must fail closed.
+  // ------------------------------------------------------------------------
+
+  const validCriticReport = {
+    artifactId: 'art-cr-1',
+    producer: 'INDEPENDENT_CRITIC',
+    consumedArtifactVersions: [
+      { artifactType: 'RENDERED_RESULT', artifactVersion: 1 },
+      { artifactType: 'DESIGN_BLUEPRINT', artifactVersion: 1 }
+    ],
+    registryVersions: {
+      parameterRegistry: '1.0.0',
+      designLanguageRegistry: '1.0.0',
+      phaseOwnershipMatrix: '1.0.0',
+      criticMetricsRegistry: '1.0.0'
+    },
+    payload: {
+      criticIteration: 1,
+      verdict: 'REFINE',
+      intentTestResult: { passed: true },
+      findings: [],
+      accessibilityFindings: [],
+      factualIntegrityFindings: []
+    }
+  };
+
+  async function tamperCurrentCriticVerdict(newVerdict: unknown): Promise<void> {
+    const store = new ArtifactStore(testWorkspace);
+    const filePath = store.getArtifactVersionPath('proj-1', ArtifactType.CRITIC_REPORT, 1);
+    const onDisk = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+    onDisk.payload.verdict = newVerdict;
+    // Raw direct write: simulates an out-of-band modification of the
+    // persisted bytes with the manifest left untouched.
+    await fs.writeFile(filePath, JSON.stringify(onDisk, null, 2), 'utf-8');
+  }
+
+  test('BLOCKER-2: a verdict tampered on disk after commit does NOT pass critic_verdict_ship', async () => {
+    await repo.saveArtifact('proj-1', GateArtifactType.CRITIC_REPORT as any, validCriticReport);
+    expect(await context.checkCondition('proj-1', 'critic_verdict_ship')).toBe(false);
+
+    // Pre-fix behavior: flipping REFINE → SHIP in the persisted file (schema-
+    // valid, envelope-consistent) passed the existence-only read. Now the
+    // commit-time content digest fails and the condition answers false.
+    await tamperCurrentCriticVerdict('SHIP');
+
+    expect(await context.checkCondition('proj-1', 'critic_verdict_ship')).toBe(false);
+    expect(await context.checkCondition('proj-1', 'critic_verdict_stated')).toBe(false);
+  });
+
+  test('BLOCKER-2: critic_verdict_stated requires the VALIDATED payload to carry a verdict', async () => {
+    // Before any artifact exists the condition is false (not an error).
+    expect(await context.checkCondition('proj-1', 'critic_verdict_stated')).toBe(false);
+
+    await repo.saveArtifact('proj-1', GateArtifactType.CRITIC_REPORT as any, validCriticReport);
+    expect(await context.checkCondition('proj-1', 'critic_verdict_stated')).toBe(true);
+
+    // A schema-invalid verdict (not in the enum) fails closed via schema
+    // validation rather than being trusted.
+    await tamperCurrentCriticVerdict('MAYBE');
+    expect(await context.checkCondition('proj-1', 'critic_verdict_stated')).toBe(false);
+    expect(await context.checkCondition('proj-1', 'critic_verdict_ship')).toBe(false);
+  });
+
+  test('BLOCKER-2: envelope tampering on the critic report fails closed', async () => {
+    await repo.saveArtifact('proj-1', GateArtifactType.CRITIC_REPORT as any, validCriticReport);
+
+    // Overwrite the current version file with a foreign project's document:
+    // parses fine, but envelope identity (projectId) no longer matches.
+    const foreign = {
+      ...validCriticReport,
+      projectId: 'other-project',
+      artifactType: 'CRITIC_REPORT',
+      artifactVersion: 1
+    };
+    const store = new ArtifactStore(testWorkspace);
+    const filePath = store.getArtifactVersionPath('proj-1', ArtifactType.CRITIC_REPORT, 1);
+    await fs.writeFile(filePath, JSON.stringify(foreign, null, 2), 'utf-8');
+
+    expect(await context.checkCondition('proj-1', 'critic_verdict_ship')).toBe(false);
+    expect(await context.checkCondition('proj-1', 'critic_verdict_stated')).toBe(false);
+  });
+
+  // ------------------------------------------------------------------------
   // MEDIUM-2: all_facts_have_provenance no longer trusts persisted JSON
   // blindly, and no longer reports missing artifacts as vacuous success.
   // ------------------------------------------------------------------------

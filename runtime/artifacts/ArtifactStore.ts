@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import { logger } from '../logging/Logger';
 import { ArtifactDocument, ArtifactType } from './ArtifactTypes';
 import { durableWrite } from './durableWrite';
@@ -104,6 +105,8 @@ export class ArtifactStore {
    * once written, per versioning.md's incrementing-iteration model. Use a
    * new version number to record a change, never overwrite an existing one.
    *
+   * @returns the SHA-256 digest of the committed bytes, to be recorded in
+   *   the manifest entry (content-integrity chain, M2.3-A BLOCKER-2 fix).
    * @throws Error if the version file already exists
    */
   async writeVersion(
@@ -111,7 +114,7 @@ export class ArtifactStore {
     artifactType: ArtifactType,
     version: number,
     document: ArtifactDocument
-  ): Promise<void> {
+  ): Promise<string> {
     const filePath = this.getArtifactVersionPath(projectId, artifactType, version);
 
     if (fs.existsSync(filePath)) {
@@ -129,7 +132,7 @@ export class ArtifactStore {
     // never leaves a partially-written version file that a later read would
     // parse as corrupt or incomplete JSON, and a power loss after the commit
     // can no longer lose the bytes to the page cache.
-    await durableWrite(filePath, content, 'utf-8');
+    const contentSha256 = await durableWrite(filePath, content, 'utf-8').then(r => r.sha256);
 
     logger.info('Artifact version written', {
       component: 'ArtifactStore',
@@ -137,6 +140,26 @@ export class ArtifactStore {
       artifactType,
       version
     });
+    return contentSha256;
+  }
+
+  /**
+   * Compute the SHA-256 digest of a persisted version file's raw bytes.
+   *
+   * Used by the read path (validateCurrentArtifact) to verify that a
+   * manifest-recorded version file was not modified after its commit
+   * (content-integrity chain, M2.3-A BLOCKER-2 fix).
+   *
+   * @throws Error if the version file does not exist
+   */
+  async getVersionDigest(
+    projectId: string,
+    artifactType: ArtifactType,
+    version: number
+  ): Promise<string> {
+    const filePath = this.getArtifactVersionPath(projectId, artifactType, version);
+    const bytes = await fs.promises.readFile(filePath);
+    return crypto.createHash('sha256').update(bytes).digest('hex');
   }
 
   /**

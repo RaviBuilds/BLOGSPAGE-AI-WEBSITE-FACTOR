@@ -204,13 +204,23 @@ export class ArtifactRepository {
         );
       }
 
-      await this.store.writeVersion(projectId, artifactType, version, documentToValidate);
+      // Durable commit of the version file; capture the digest of the exact
+      // bytes written so the manifest entry carries the content-integrity
+      // chain (M2.3-A BLOCKER-2 fix: the read path verifies the file was not
+      // modified after its commit).
+      const contentSha256 = await this.store.writeVersion(
+        projectId,
+        artifactType,
+        version,
+        documentToValidate
+      );
 
       const updatedManifest = this.manifestManager.recordNewVersion(
         manifest,
         artifactType,
         artifactId,
-        version
+        version,
+        contentSha256
       );
       await this.manifestManager.write(projectId, updatedManifest);
 
@@ -350,6 +360,37 @@ export class ArtifactRepository {
         reason: `manifest records ${artifactType} v${current.version} as CURRENT but its ` +
           `version file is missing`
       };
+    }
+
+    // Content-integrity chain (M2.3-A BLOCKER-2 fix): when the manifest
+    // entry carries the digest recorded at commit time, re-verify the file
+    // bytes against it. A file modified after its commit — tampered,
+    // partially written, or restored from an inconsistent backup — fails
+    // closed here, BEFORE its payload is trusted by any gate condition.
+    // Entries recorded before this field existed (legacy manifests) skip
+    // the check.
+    if (current.contentSha256 !== undefined) {
+      let actualDigest: string;
+      try {
+        actualDigest = await this.store.getVersionDigest(
+          projectId,
+          artifactType,
+          current.version
+        );
+      } catch (error) {
+        return {
+          valid: false,
+          reason: `persisted ${artifactType} v${current.version} could not be read for ` +
+            `content verification (${(error as Error).message})`
+        };
+      }
+      if (actualDigest !== current.contentSha256) {
+        return {
+          valid: false,
+          reason: `persisted ${artifactType} v${current.version} content digest mismatch — ` +
+            `the file was modified after its commit (tampered or corrupt)`
+        };
+      }
     }
 
     let document: ArtifactDocument;
@@ -517,12 +558,22 @@ export class ArtifactRepository {
               fileVersion
             );
             const stats = await fs.promises.stat(filePath);
+            // The adopted file is trusted at THIS moment (parse + schema +
+            // envelope checks already passed in classifyOrphan); record its
+            // digest now so every later read verifies it was not modified
+            // after adoption.
+            const adoptedDigest = await this.store.getVersionDigest(
+              projectId,
+              artifactType,
+              fileVersion
+            );
             manifest = this.manifestManager.adoptVersion(
               manifest,
               artifactType,
               disposition.artifactId,
               fileVersion,
-              stats.mtime.toISOString()
+              stats.mtime.toISOString(),
+              adoptedDigest
             );
             manifestChanged = true;
 

@@ -83,6 +83,15 @@ export interface ManifestVersionEntry {
   status: VersionStatus;
   artifactId: string;
   writtenAt: string;
+  /**
+   * SHA-256 of the persisted version file's bytes, recorded at commit time
+   * (M2.3-A BLOCKER-2 remediation: content-integrity chain). Optional for
+   * compatibility with manifests written before this field existed —
+   * validateCurrentArtifact verifies the digest only when it is present,
+   * and skips the check for legacy entries. New commits always record it;
+   * orphan adoption records it for the adopted file.
+   */
+  contentSha256?: string;
 }
 
 /**

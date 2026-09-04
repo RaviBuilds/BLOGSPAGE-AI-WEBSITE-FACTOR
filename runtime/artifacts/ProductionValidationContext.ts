@@ -227,21 +227,44 @@ export class ProductionValidationContext implements ValidationContext {
         return true;
       }
 
-      case 'critic_verdict_stated':
-        // verdict is a required enum field on CRITIC_REPORT's payload
-        // (schema-guaranteed present whenever the artifact exists).
-        return this.hasArtifact(projectId, GateArtifactType.CRITIC_REPORT);
-
-      case 'critic_verdict_ship': {
-        const hasCritic = await this.hasArtifact(projectId, GateArtifactType.CRITIC_REPORT);
-        if (!hasCritic) {
-          return false;
-        }
-        const criticReport = await this.repository.getCurrentArtifact(
+      case 'critic_verdict_stated': {
+        // M2.3-A BLOCKER-2 fix: this condition previously answered true from
+        // artifact EXISTENCE alone, asserting a schema guarantee it never
+        // checked. It now establishes full current-artifact integrity first —
+        // manifest membership, file read, JSON parse, schema validation and
+        // envelope identity (projectId, artifactType, artifactVersion,
+        // artifactId) — and only then requires the VALIDATED payload to
+        // actually contain a verdict. Any missing/corrupt/foreign/tampered
+        // artifact fails closed (integrity invalid ⇒ condition false).
+        const integrity = await this.repository.validateCurrentArtifact(
           projectId,
           ArtifactType.CRITIC_REPORT
         );
-        const payload = criticReport['payload'] as Record<string, unknown> | undefined;
+        if (!integrity.valid || !integrity.document) {
+          return false;
+        }
+        const payload = integrity.document['payload'] as Record<string, unknown> | undefined;
+        return typeof payload?.['verdict'] === 'string' && payload['verdict'].length > 0;
+      }
+
+      case 'critic_verdict_ship': {
+        // M2.3-A BLOCKER-2 fix: this condition previously read the payload via
+        // getCurrentArtifact, which establishes manifest membership and file
+        // existence ONLY — no schema validation and no envelope identity
+        // checks — so a tampered CRITIC_REPORT file with
+        // payload.verdict = "SHIP" (manifest untouched) passed and could feed
+        // Final Approval. It now trusts the payload only AFTER
+        // validateCurrentArtifact has re-established integrity end to end,
+        // and returns true only for verdict === 'SHIP'. Any
+        // missing/corrupt/foreign/tampered artifact fails closed.
+        const integrity = await this.repository.validateCurrentArtifact(
+          projectId,
+          ArtifactType.CRITIC_REPORT
+        );
+        if (!integrity.valid || !integrity.document) {
+          return false;
+        }
+        const payload = integrity.document['payload'] as Record<string, unknown> | undefined;
         return payload?.['verdict'] === 'SHIP';
       }
 

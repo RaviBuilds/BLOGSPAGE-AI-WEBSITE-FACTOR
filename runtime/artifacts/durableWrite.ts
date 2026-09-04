@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import { logger } from '../logging/Logger';
 
 /**
@@ -52,9 +53,14 @@ export async function durableWrite(
   targetPath: string,
   content: string,
   encoding: BufferEncoding = 'utf-8'
-): Promise<void> {
+): Promise<{ sha256: string }> {
   const dir = path.dirname(targetPath);
   const tempPath = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
+
+  // Digest of the exact bytes being committed. Returned so the caller can
+  // record it (the manifest's contentSha256) and the read path can verify
+  // that a version file was not modified after its commit.
+  const sha256 = crypto.createHash('sha256').update(content, encoding).digest('hex');
 
   let fd: fs.promises.FileHandle | undefined;
 
@@ -104,4 +110,6 @@ export async function durableWrite(
       }
     );
   }
+
+  return { sha256 };
 }
