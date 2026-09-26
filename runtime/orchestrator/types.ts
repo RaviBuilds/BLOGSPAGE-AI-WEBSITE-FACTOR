@@ -325,3 +325,26 @@ export interface RunSummary {
   stopped: RunStopReason;
   finalState: State;
 }
+
+/**
+ * Result of a human-gate resume attempt (M2.3-B).
+ *
+ * `transitioned: false` is a normal, non-error outcome — the orchestrator
+ * reports WHY it did not move rather than forcing anything (fail closed). In
+ * particular `decision: null` means no human decision has been recorded, and
+ * approval is never inferred from that absence (human-approval.md §7 inv. 5).
+ */
+export interface ResumeOutcome {
+  projectId: string;
+  gate: number;
+  /** The recorded decision, or null when none exists. */
+  decision: 'APPROVED' | 'REJECTED' | null;
+  from: State;
+  /** The state moved to, or null when nothing was attempted. */
+  to: State | null;
+  transitioned: boolean;
+  txId?: string;
+  idempotent?: boolean;
+  /** Why no transition was taken, when transitioned is false. */
+  reason?: string;
+}

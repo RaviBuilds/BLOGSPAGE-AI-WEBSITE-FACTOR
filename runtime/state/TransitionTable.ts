@@ -1,10 +1,14 @@
 /**
- * Transition table - encodes 69 canonical transition rules.
+ * Transition table - encodes 70 canonical transition rules.
  * 
  * Source: state-machine.md §4
- * - 64 fixed/static rules
+ * - 65 fixed/static rules
  * - 5 dynamic returnTarget rules
- * - 69 total canonical rules
+ * - 70 total canonical rules
+ * 
+ * The M2.3-B Seam 1 change added exactly one fixed rule (RESEARCHING →
+ * RETURN_TO_RESEARCH), raising the fixed count from 64 to 65 and the total
+ * from 69 to 70. Every other rule is unchanged.
  * 
  * This table is an implementation projection of canonical state-machine.md.
  * Any drift from the source is a bug.
@@ -99,7 +103,8 @@ export class TransitionTable {
   /**
    * Build fixed transition adjacency map.
    * 
-   * Encoding of 64 static rules from state-machine.md §4.
+   * Encoding of the 65 fixed rules from state-machine.md §4
+   * (64 before the M2.3-B Seam 1 edge was added).
    */
   private buildFixedTransitions(): Map<string, Set<string>> {
     const transitions = new Map<string, Set<string>>();
@@ -115,8 +120,20 @@ export class TransitionTable {
     // NEW → RESEARCHING, NEEDS_CONTENT, NEEDS_ASSETS, NEEDS_CREDENTIALS, BLOCKED
     add('NEW', 'RESEARCHING', 'NEEDS_CONTENT', 'NEEDS_ASSETS', 'NEEDS_CREDENTIALS', 'BLOCKED');
 
-    // RESEARCHING → RESEARCH_READY, NEEDS_CONTENT, NEEDS_ASSETS, NEEDS_CREDENTIALS, NEEDS_HUMAN_REVIEW, BLOCKED
-    add('RESEARCHING', 'RESEARCH_READY', 'NEEDS_CONTENT', 'NEEDS_ASSETS', 'NEEDS_CREDENTIALS', 'NEEDS_HUMAN_REVIEW', 'BLOCKED');
+    // RESEARCHING → RESEARCH_READY, RETURN_TO_RESEARCH, NEEDS_CONTENT, NEEDS_ASSETS, NEEDS_CREDENTIALS, NEEDS_HUMAN_REVIEW, BLOCKED
+    //
+    // SEAM 1 (M2.3-B): RETURN_TO_RESEARCH added. failure-routing.md §2 maps a
+    // business-understanding problem and a factual-integrity problem to
+    // owning phase "Research" → RETURN_TO_RESEARCH, and §5 makes "Is a
+    // presented fact wrong, unverified, or fabricated?" the FIRST ordered
+    // routing question. Before this edge existed, the only state that can
+    // produce a research/factual-integrity failure (RESEARCHING) had no legal
+    // route to the one canonical state that repairs it, so the research
+    // correction loop was inoperable and M2.4 was forced to refuse the
+    // transition as ILLEGAL_TRANSITION. state-machine.md §2 (RESEARCHING
+    // "Valid next states") and §4 (transition table) were updated with this
+    // edge in the same change. No other row was touched.
+    add('RESEARCHING', 'RESEARCH_READY', 'RETURN_TO_RESEARCH', 'NEEDS_CONTENT', 'NEEDS_ASSETS', 'NEEDS_CREDENTIALS', 'NEEDS_HUMAN_REVIEW', 'BLOCKED');
 
     // RESEARCH_READY → CREATIVE_DIRECTION, RETURN_TO_RESEARCH, NEEDS_HUMAN_REVIEW, BLOCKED
     add('RESEARCH_READY', 'CREATIVE_DIRECTION', 'RETURN_TO_RESEARCH', 'NEEDS_HUMAN_REVIEW', 'BLOCKED');

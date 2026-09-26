@@ -10,21 +10,32 @@
  *
  * MockValidationContext is deliberately NOT imported anywhere in this file.
  *
- * CURRENT-ARCHITECTURE FACT pinned by T1/T3: under the frozen condition
- * contract (17 of 27 M2.2 conditions unresolved; M2.3-B deferred), every
- * gate fails closed — see ProductionWiring.test.ts T3, accepted at the
- * M2.3-A freeze. The research artifacts ARE produced and persisted
- * (artifact-first), the Research Validation gate IS evaluated, and its
- * fail-closed verdict IS classified FACTUAL_INTEGRITY_PROBLEM, which the
- * frozen FailureRouter routes to RETURN_TO_RESEARCH. But state-machine.md §4
- * gives RESEARCHING no RETURN_TO_* exit: the recommendation is ILLEGAL from
- * the current state. The orchestrator therefore refuses to force it
- * (ILLEGAL_TRANSITION) and never invents a substitute route — recorded as a
- * canonical-seam finding for factory-level resolution, exactly in the style
- * of the M2.3-A T3 deviation. The pass path (gate contract permits →
- * RESEARCHING → RESEARCH_READY) is proven in Orchestrator.test.ts with a
- * stub ValidationContext: the orchestrator's pass branch is real and
- * exercised; only the gate's condition resolution is outstanding (M2.3-B).
+ * SEAM 1 CLOSED (M2.3-B) — this file no longer pins an ILLEGAL_TRANSITION.
+ * Under the frozen condition contract (17 of 27 M2.2 conditions unresolved;
+ * M2.3-B formalizes their contracts but deliberately does NOT resolve the
+ * semantic ones), the Research Validation gate fails closed — see
+ * ProductionWiring.test.ts T3, accepted at the M2.3-A freeze. The research
+ * artifacts ARE produced and persisted (artifact-first), the gate IS
+ * evaluated, and its fail-closed verdict IS classified
+ * FACTUAL_INTEGRITY_PROBLEM, which the frozen FailureRouter routes to
+ * RETURN_TO_RESEARCH.
+ *
+ * That recommendation used to be ILLEGAL: state-machine.md §2/§4 gave
+ * RESEARCHING no RETURN_TO_* exit, so M2.4 refused to force it
+ * (ILLEGAL_TRANSITION) and recorded the canonical-seam finding for
+ * factory-level resolution. M2.3-B resolved it by adding the missing edge
+ * (RESEARCHING → RETURN_TO_RESEARCH) to state-machine.md and
+ * TransitionTable — no orchestration logic was added, because the edge alone
+ * makes the existing gate-failure routing legal. The run now commits the
+ * canonical route and then stops safely: RETURN_TO_RESEARCH has no
+ * registered action, and its only legal exit (→ RESEARCHING) belongs to the
+ * human/future milestone that supplies the corrected facts, exactly as for
+ * the NEEDS_* return states.
+ *
+ * The pass path (gate contract permits → RESEARCHING → RESEARCH_READY) is
+ * proven in Orchestrator.test.ts with a stub ValidationContext: the
+ * orchestrator's pass branch is real and exercised; only the gate's
+ * condition resolution is outstanding.
  *
  * M2.4 Milestone: Orchestrator with research vertical slice.
  * Factory version: 0.2.0
@@ -39,7 +50,7 @@ import { getAllGates } from '../../gates/GateRegistry';
 import { State } from '../../state/StateMachine';
 import { StateManager } from '../../state/StateManager';
 import { Orchestrator } from '../../orchestrator/Orchestrator';
-import { FailureType, OrchestrationError } from '../../orchestrator/types';
+import { RunSummary } from '../../orchestrator/types';
 import {
   bootstrapResearchProject,
   makeWorkspaceRoot,
@@ -72,32 +83,39 @@ describe('Research vertical slice — production wiring (M2.4)', () => {
   });
 
   // Test entry point for every case below: one full production run.
-  async function runSlice(): Promise<unknown> {
-    try {
-      return await orchestrator.run(projectId);
-    } catch (error) {
-      return error;
-    }
+  //
+  // No try/catch: since Seam 1 closed, the canonical route is legal and the
+  // run stops cleanly. A thrown OrchestrationError here is a real regression
+  // and must fail the test rather than be swallowed.
+  async function runSlice(): Promise<RunSummary> {
+    return orchestrator.run(projectId);
   }
 
-  it('T1: produces all four research artifacts with full provenance BEFORE the gate verdict, and refuses the illegal recommended route (fail closed)', async () => {
-    const outcome = await runSlice();
+  it('T1: produces all four research artifacts BEFORE the gate verdict, commits the canonical seam route, and stops safely', async () => {
+    const summary = await runSlice();
 
-    // CANONICAL-SEAM FINDING (pinned, mirrors the accepted M2.3-A T3
-    // deviation): under the frozen condition contract the Research
-    // Validation gate fails closed; the dominant blocking failure carries
-    // FACTUAL_INTEGRITY_PROBLEM; the frozen FailureRouter therefore
-    // recommends RETURN_TO_RESEARCH — but state-machine.md §4 gives
-    // RESEARCHING no RETURN_TO_* exit. The orchestrator refuses to force
-    // the illegal transition (ILLEGAL_TRANSITION) and never invents a
-    // substitute route.
-    expect(outcome).toBeInstanceOf(OrchestrationError);
-    expect((outcome as OrchestrationError).failureType).toBe(
-      FailureType.ILLEGAL_TRANSITION
-    );
+    // SEAM 1 CLOSED (M2.3-B): the frozen condition contract makes the Research
+    // Validation gate fail closed; the dominant blocking failure carries
+    // FACTUAL_INTEGRITY_PROBLEM; the frozen FailureRouter recommends
+    // RETURN_TO_RESEARCH — and that route is now LEGAL from RESEARCHING. The
+    // orchestrator commits it, then stops safely: RETURN_TO_RESEARCH has no
+    // registered action, and its only legal exit (→ RESEARCHING) belongs to
+    // the human/future milestone that supplies the corrected facts.
+    expect(summary.stopped).toBe('no-action-for-state');
+    expect(summary.finalState).toBe(State.RETURN_TO_RESEARCH);
+    expect(summary.steps).toHaveLength(1);
 
-    // Artifact-first ordering held: all four artifacts were persisted and
-    // remain intact, while the project state never advanced.
+    const step = summary.steps[0];
+    expect(step.fromState).toBe(State.RESEARCHING);
+    expect(step.gate!.passed).toBe(false);
+    expect(step.gate!.recommendedRoute).toBe(State.RETURN_TO_RESEARCH);
+    expect(step.transition).toMatchObject({
+      from: State.RESEARCHING,
+      to: State.RETURN_TO_RESEARCH
+    });
+
+    // Artifact-first ordering held: all four artifacts were persisted BEFORE
+    // the gate verdict and remain intact.
     for (const artifactType of [
       ArtifactType.BUSINESS_RESEARCH,
       ArtifactType.BUSINESS_INTELLIGENCE,
@@ -108,7 +126,7 @@ describe('Research vertical slice — production wiring (M2.4)', () => {
     }
 
     const stateManager = new StateManager(workspaceRoot);
-    expect(await stateManager.getCurrentState(projectId)).toBe(State.RESEARCHING);
+    expect(await stateManager.getCurrentState(projectId)).toBe(State.RETURN_TO_RESEARCH);
   });
 
   it('T2: persisted research artifacts are schema-valid, M2.3-enveloped, and carry honest provenance and gaps', async () => {
@@ -165,18 +183,26 @@ describe('Research vertical slice — production wiring (M2.4)', () => {
     ).resolves.toBe(true);
   });
 
-  it('T5: the M2.1 WAL records NO orchestrator transition when the route is refused (state unchanged, nothing forced)', async () => {
+  it('T5: the M2.1 WAL records exactly the canonical seam route — one orchestrator transition to RETURN_TO_RESEARCH, never an invented route', async () => {
     await runSlice();
 
     const stateManager = new StateManager(workspaceRoot);
     const history = await stateManager.getStateHistory(projectId);
     const triggeredBy = history.transitions.map(t => t.triggeredBy);
 
-    // Only the bootstrap transitions exist — the orchestrator committed
-    // nothing, because its only available move was illegal and it refuses
-    // rather than guessing.
-    expect(triggeredBy.every(t => t.startsWith('test:'))).toBe(true);
-    expect(await stateManager.getCurrentState(projectId)).toBe(State.RESEARCHING);
+    // Bootstrap (NEW → RESEARCHING, triggered by the test helper) plus
+    // exactly ONE orchestrator transition: the M2.2-recommended route, which
+    // Seam 1 made legal. The orchestrator added no route of its own, and the
+    // count is pinned so an invented or duplicated transition cannot hide.
+    expect(triggeredBy.filter(t => t.startsWith('test:'))).toHaveLength(1);
+    expect(triggeredBy.filter(t => t.startsWith('orchestrator:'))).toHaveLength(1);
+
+    const last = history.transitions[history.transitions.length - 1];
+    expect(last.from).toBe(State.RESEARCHING);
+    expect(last.to).toBe(State.RETURN_TO_RESEARCH);
+    expect(last.triggeredBy).toBe('orchestrator:gate-fail:RESEARCH_VALIDATION');
+
+    expect(await stateManager.getCurrentState(projectId)).toBe(State.RETURN_TO_RESEARCH);
   });
 });
 

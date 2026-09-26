@@ -52,6 +52,9 @@ import { StageRegistry } from './StageRegistry';
 import { GateCoordinator } from './coordination/GateCoordinator';
 import { Reconciliation } from './coordination/Reconciliation';
 import { TransitionCoordinator } from './coordination/TransitionCoordinator';
+import { ApprovalCoordinator, ApprovalOutcome, ApprovalRequest } from './approval/ApprovalCoordinator';
+import { ApprovalStore } from './approval/ApprovalStore';
+import { ApprovalDecision, GATE_DEFINITIONS, HumanApprovalGate } from './approval/ApprovalTypes';
 import { ArtifactInputResolver } from './execution/ArtifactInputResolver';
 import { OutputCoordinator } from './execution/OutputCoordinator';
 import { ProjectInputLoader } from './execution/ProjectInputLoader';
@@ -65,6 +68,7 @@ import {
   OrchestrationError,
   PersistedArtifact,
   ResolvedArtifact,
+  ResumeOutcome,
   RunStopReason,
   RunSummary,
   StepRecord,
@@ -88,6 +92,12 @@ export interface OrchestratorDeps {
   stateManager?: StateManager;
   artifactRepository?: ArtifactRepository;
   stageRegistry?: StageRegistry;
+  /**
+   * Human approval persistence + policy (M2.3-B). Defaulted from
+   * workspaceRoot; injectable so tests can share one instance.
+   */
+  approvalStore?: ApprovalStore;
+  approvalCoordinator?: ApprovalCoordinator;
   /** Workers registered with the dispatcher (defaults to the M2.4 set). */
   workers?: Worker[];
   /** Upper bound on orchestration steps per run() invocation. */
@@ -105,6 +115,8 @@ export class Orchestrator {
   private readonly gateCoordinator: GateCoordinator;
   private readonly transitionCoordinator: TransitionCoordinator;
   private readonly reconciliation: Reconciliation;
+  private readonly approvalStore: ApprovalStore;
+  private readonly approvalCoordinator: ApprovalCoordinator;
   private readonly maxStepsPerRun: number;
 
   constructor(deps: OrchestratorDeps) {
@@ -129,6 +141,118 @@ export class Orchestrator {
       this.transitionCoordinator
     );
     this.maxStepsPerRun = deps.maxStepsPerRun ?? 8;
+    this.approvalStore = deps.approvalStore ?? new ApprovalStore(deps.workspaceRoot);
+    this.approvalCoordinator =
+      deps.approvalCoordinator ?? new ApprovalCoordinator(this.approvalStore);
+  }
+
+  /**
+   * The human approval coordinator (M2.3-B).
+   *
+   * Recorded decisions are the ONLY way past a human gate: `run()` still stops
+   * at every human-stop state and never infers an approval
+   * (human-approval.md §7 invariant 5). A human (or a future CLI) records a
+   * decision through `recordApproval`, then calls `resumeWithApproval` to
+   * complete the gate's canonical transition.
+   */
+  get approvals(): ApprovalCoordinator {
+    return this.approvalCoordinator;
+  }
+
+  /** Record a human approval or rejection for a gate (persisted). */
+  async recordApproval(
+    request: ApprovalRequest,
+    decision: ApprovalDecision
+  ): Promise<ApprovalOutcome> {
+    return decision === 'APPROVED'
+      ? this.approvalCoordinator.approve(request)
+      : this.approvalCoordinator.reject(request);
+  }
+
+  /**
+   * Complete a human gate's transition from an ALREADY-RECORDED decision.
+   *
+   * This is the resume path past a human-stop state. It is deliberately
+   * decision-driven, never inference-driven:
+   *   - no recorded decision            ⇒ no transition (invariant 5),
+   *   - project not at the gate's state ⇒ no transition,
+   *   - a route the canonical table does not permit from that state ⇒ no
+   *     transition and reported as illegal (the KNOWN CANONICAL SEAM: three
+   *     Gate 1 routes and one Gate 2 route — see m2.3-b-decisions.md §4). It is
+   *     never forced, and M2.1 would reject it authoritatively anyway.
+   *
+   * The transition itself goes through the ordinary TransitionCoordinator, so
+   * M2.1's WAL, legality check and idempotency all still apply.
+   */
+  async resumeWithApproval(
+    projectId: string,
+    gate: HumanApprovalGate
+  ): Promise<ResumeOutcome> {
+    const record = await this.approvalCoordinator.getDecision(projectId, gate);
+
+    if (!record) {
+      return {
+        projectId,
+        gate,
+        decision: null,
+        from: await this.readCurrentState(projectId),
+        to: null,
+        transitioned: false,
+        reason: 'no approval or rejection has been recorded for this gate'
+      };
+    }
+
+    const from = await this.readCurrentState(projectId);
+    const expected = GATE_DEFINITIONS[gate].occursAt;
+
+    if (from !== expected) {
+      return {
+        projectId,
+        gate,
+        decision: record.decision,
+        from,
+        to: null,
+        transitioned: false,
+        reason: `gate ${gate} occurs at ${expected}; project is in ${from}`
+      };
+    }
+
+    const to =
+      record.decision === 'APPROVED'
+        ? GATE_DEFINITIONS[gate].transitionTo
+        : (record.route ?? ('NEEDS_HUMAN_REVIEW' as State));
+
+    if (!this.transitionCoordinator.isTransitionLegal(from, to)) {
+      return {
+        projectId,
+        gate,
+        decision: record.decision,
+        from,
+        to,
+        transitioned: false,
+        reason:
+          `${from} → ${to} is not legal per the canonical transition table ` +
+          `(state-machine.md §4); not forced`
+      };
+    }
+
+    const result = await this.transitionCoordinator.requestTransition(
+      projectId,
+      from,
+      to,
+      `orchestrator:human-gate:${gate}:${record.decision.toLowerCase()}`
+    );
+
+    return {
+      projectId,
+      gate,
+      decision: record.decision,
+      from,
+      to,
+      transitioned: true,
+      txId: result.txId,
+      idempotent: result.idempotent
+    };
   }
 
   /**

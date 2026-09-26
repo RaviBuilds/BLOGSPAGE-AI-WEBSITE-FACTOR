@@ -67,7 +67,7 @@ describe('TransitionTable', () => {
     expect(table.getValidNextStates('')).toEqual([]);
   });
 
-  test('should encode 64 fixed rules', () => {
+  test('should encode 65 fixed rules', () => {
     const states = [
       'NEW', 'RESEARCHING', 'RESEARCH_READY', 'CREATIVE_DIRECTION',
       'BLUEPRINT_READY', 'IMPLEMENTING', 'BUILD_READY', 'CRITIQUING',
@@ -81,6 +81,12 @@ describe('TransitionTable', () => {
       fixedRuleCount += table.getValidNextStates(state).length;
     }
 
-    expect(fixedRuleCount).toBe(64);
+    // M2.3-B Seam 1 added exactly one fixed rule — RESEARCHING →
+    // RETURN_TO_RESEARCH — raising the fixed count from 64 to 65 (69 → 70
+    // total canonical rules including the 5 dynamic returnTarget rules).
+    // The canonical table itself is asserted row-by-row against
+    // 02-CONTROL-PLANE/state-machine.md §4 in
+    // tests/orchestrator/Seam1.test.ts; this is the count guard.
+    expect(fixedRuleCount).toBe(65);
   });
 });

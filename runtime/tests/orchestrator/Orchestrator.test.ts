@@ -184,29 +184,37 @@ describe('Orchestrator (M2.4)', () => {
     expect(stored['versionStatus']).toBe('CURRENT');
   });
 
-  it('refuses an M2.2 route recommendation that is illegal from the current state (canonical seam, fail closed)', async () => {
-    // CANONICAL-SEAM FINDING (recorded, not patched): the frozen FailureRouter
-    // maps FACTUAL_INTEGRITY_PROBLEM → RETURN_TO_RESEARCH for ANY current
-    // state, but state-machine.md §4 gives RESEARCHING no RETURN_TO_* exit.
-    // M2.4 must not force an illegal transition and must not re-route on its
-    // own authority: it aborts the run with the project still in RESEARCHING
-    // and all persisted artifacts intact (artifact-first ordering preserved).
-    // This mirrors the M2.3-A T3 deviation style: pin the frozen behavior,
-    // record the finding for factory-level resolution.
+  it('commits an M2.2 route recommendation that is legal from the current state (Seam 1 closed; no invented route)', async () => {
+    // SEAM 1 CLOSED (M2.3-B): the frozen FailureRouter maps
+    // FACTUAL_INTEGRITY_PROBLEM → RETURN_TO_RESEARCH for ANY current state.
+    // Before M2.3-B, state-machine.md §4 gave RESEARCHING no RETURN_TO_* exit,
+    // so that canonical recommendation was ILLEGAL from the current state and
+    // the orchestrator refused it (ILLEGAL_TRANSITION). M2.3-B added the
+    // missing RESEARCHING → RETURN_TO_RESEARCH edge, so the orchestrator now
+    // commits exactly M2.2's recommendation and then stops safely at
+    // RETURN_TO_RESEARCH. It still invents no route of its own — the
+    // destination comes only from recommendedRoute. Transition-table proof:
+    // tests/orchestrator/Seam1.test.ts.
     await bootstrapResearchProject(workspaceRoot, projectId);
     const repo = new ArtifactRepository(workspaceRoot);
 
-    await expect(
-      makeOrchestrator(workspaceRoot, {
-        validationContext: new FabricatedFactValidationContext()
-      }).run(projectId)
-    ).rejects.toMatchObject({ failureType: FailureType.ILLEGAL_TRANSITION });
+    const summary = await makeOrchestrator(workspaceRoot, {
+      validationContext: new FabricatedFactValidationContext()
+    }).run(projectId);
+
+    expect(summary.stopped).toBe('no-action-for-state');
+    expect(summary.finalState).toBe(State.RETURN_TO_RESEARCH);
+    expect(summary.steps[0].gate!.recommendedRoute).toBe(State.RETURN_TO_RESEARCH);
+    expect(summary.steps[0].transition).toMatchObject({
+      from: State.RESEARCHING,
+      to: State.RETURN_TO_RESEARCH
+    });
 
     // Artifact-first held: the worker's artifacts were persisted BEFORE the
-    // gate verdict was routed; the illegal transition was never committed.
+    // gate verdict was routed.
     expect(await repo.hasArtifact(projectId, ArtifactType.BUSINESS_RESEARCH)).toBe(true);
     const stateManager = new StateManager(workspaceRoot);
-    expect(await stateManager.getCurrentState(projectId)).toBe(State.RESEARCHING);
+    expect(await stateManager.getCurrentState(projectId)).toBe(State.RETURN_TO_RESEARCH);
   });
 
   it('routes a content problem to NEEDS_CONTENT and stops at the human-stop state', async () => {
